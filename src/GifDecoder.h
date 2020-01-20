@@ -1,8 +1,3 @@
-/*
-Code has been taken from marcmerlin and is under the MIT License 
-https://github.com/marcmerlin/AnimatedGIFs
-*/
-
 #ifndef _GIFDECODER_H_
 #define _GIFDECODER_H_
 
@@ -109,7 +104,7 @@ private:
 
     // Backup image data buffer for saving portions of image disposal method == 3
     uint8_t *imageDataBU;
-    //C++11 feature, is ok with new compilers only if you work with old ones choose another way of init...
+
     uint32_t gifsize = maxGifWidth * maxGifHeight;
 
     callback screenClearCallback;
@@ -143,7 +138,7 @@ private:
     uint8_t *suffix;
     uint16_t *prefix;
 
-    // Masks for 0 .. 16 bits //C++11 extension
+    // Masks for 0 .. 16 bits
     const unsigned int mask[17] = {
         0x0000, 0x0001, 0x0003, 0x0007,
         0x000F, 0x001F, 0x003F, 0x007F,
@@ -153,7 +148,7 @@ private:
     };
 };
 
-
- #include "LzwDecoder_Impl.hpp"  //implementation of this template
+#include "GifDecoder_Impl.h"
+#include "LzwDecoder_Impl.h"
 
 #endif

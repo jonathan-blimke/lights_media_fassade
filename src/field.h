@@ -30,6 +30,8 @@ const String BooleanFieldType = "Boolean";
 const String SelectFieldType = "Select";
 const String ColorFieldType = "Color";
 const String SectionFieldType = "Section";
+const String TextFieldType ="Text";
+const String ArrayFieldType  ="Array";
 
 typedef struct Field
 {
@@ -39,9 +41,11 @@ public:
   String type;
   uint8_t min;
   uint8_t max;
+  uint16_t *bitmap;
   FieldGetter getValue;
   FieldGetter getOptions;
   FieldSetter setValue;
+  FieldSetter setArray;
 };
 
 typedef Field FieldList[];
@@ -153,11 +157,7 @@ void loadFieldsFromEEPROM(FieldList fields, uint8_t count)
   }
 
   EEPROM.begin(count);
-  // if () {
-  //   Serial.println("Failed to initialize EEPROM!");
-  //   return;
-  // }
-
+ 
   if (EEPROM.read(0) == 255)
   {
     Serial.println("First run, or EEPROM erased, skipping settings load!");
@@ -187,6 +187,7 @@ void loadFieldsFromEEPROM(FieldList fields, uint8_t count)
   }
 }
 
+// returns field list as json
 String getFieldsJson(FieldList fields, uint8_t count)
 {
   String json = "[";

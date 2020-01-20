@@ -61,7 +61,7 @@ void setupWifi()
     WiFi.mode(WIFI_AP);
     WiFi.softAP(hostnameChar, apPassword);
     Serial.printf("Connect to Wi-Fi access point: %s\n", hostnameChar);
-    Serial.println("and open http://192.168.4.1 in your browser");
+    Serial.println("and open the ip according your serial monitor in your browser");
     Serial.printf("soft AP IP: %s\n", WiFi.softAPIP());
   }
   else

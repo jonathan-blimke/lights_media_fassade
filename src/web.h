@@ -73,6 +73,22 @@ void setupWeb()
     digitalWrite(LED_BUILTIN, LOW);
   });
 
+//___
+  webServer.on("/showtext", HTTP_GET, [](AsyncWebServerRequest *request) {
+    
+    String text = "text dummy";
+
+    request->send(200, "text", text);
+   
+  });
+
+  webServer.on("/sendtext", HTTP_POST, [](AsyncWebServerRequest *request) {
+    
+    String name = request->getParam("name", true)->value();
+    request->send(200, "text/json", name);
+
+  });
+
   webServer.on("/fieldValue", HTTP_GET, [](AsyncWebServerRequest *request) {
     digitalWrite(LED_BUILTIN, HIGH);
     String name = request->getParam("name")->value();
@@ -98,21 +114,20 @@ void setupWeb()
     {
       value = request->getParam("value", true)->value();
     }
-
     String newValue = setFieldValue(name, value, fields, fieldCount);
     request->send(200, "text/json", newValue);
     digitalWrite(LED_BUILTIN, LOW);
   });
 
   webServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
-
   webServer.begin();
   Serial.println("HTTP server started");
-
   webSocketsServer.begin();
   webSocketsServer.onEvent(webSocketEvent);
   Serial.println("WebSockets server started");
 }
+
+
 
 void handleWeb()
 {
@@ -135,10 +150,10 @@ void handleWeb()
 
     webSocketsServer.loop();
   }
-  else
+  else 
   {
-    // blink the board's LED while connecting to wifi
-    // static uint8_t ledState = 0;
+    
+    // static value, could be done dynamicaly 
     EVERY_N_MILLIS(125)
     {
       // ledState = ;

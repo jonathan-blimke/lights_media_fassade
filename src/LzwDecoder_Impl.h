@@ -27,7 +27,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
 #define LZWDEBUG 0
 
 #if defined (ARDUINO)
@@ -36,9 +35,8 @@
 #include "application.h"
 #endif
 
-#include "GifDecoder.hpp"
+#include "GifDecoder.h"
 
-//___ template implementation
 template <int maxGifWidth, int maxGifHeight, int lzwMaxBits>
 void GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::lzw_setTempBuffer(uint8_t * tempBuffer) {
     temp_buffer = tempBuffer;
@@ -176,7 +174,4 @@ int GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::lzw_decode(uint8_t *buf, 
     }
     end_code = -1;
     return len - l;
-} 
-
-
-
+}

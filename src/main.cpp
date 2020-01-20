@@ -26,6 +26,9 @@
 
 #define FASTLED_INTERRUPT_RETRY_COUNT 0
 #define FASTLED_ALLOW_INTERRUPTS 0
+// -- The core to run FastLED.show()
+#define FASTLED_SHOW_CORE 0
+
 
 #include <Arduino.h>
 #include <FastLED.h>
@@ -39,12 +42,6 @@
 #include <FastLED_NeoMatrix.h>
 #include <LEDMatrix.h>
 
-//rgb bitmap 
-#include "bild.h"
-
-#if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3001008)
-#warning "Requires FastLED 3.1.8 or later; check github for latest code."
-#endif
 
 AsyncWebServer webServer(80);
 WebSocketsServer webSocketsServer = WebSocketsServer(81);
@@ -52,42 +49,30 @@ WebSocketsServer webSocketsServer = WebSocketsServer(81);
 const int led = 32;
 const int LED_BUILTIN = 2;
 
-uint8_t autoplay = 1;
-uint8_t autoplayDuration = 60;
-unsigned long autoPlayTimeout = 0;
-uint8_t currentPatternIndex = 0; // Index number of which pattern is current
-uint8_t gHue = 0; // rotating "base color" used by many of the patterns
+
 uint8_t power = 1;
+String serverstring = "hello world";
 uint8_t brightness = 150;
-uint8_t speed = 20;
+uint16_t bitmap[30] = {
+0xFFFF, 0x000F, 0x00F0, 0x0F00, 0xF000, 0xAB10,     
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x000F,  
+};
+String array ="arraymaincpp";
 
-// COOLING: How much does the air cool as it rises?
-// Less cooling = taller flames.  More cooling = shorter flames.
-// Default 50, suggested range 20-100
-uint8_t cooling = 50;
 
-// SPARKING: What chance (out of 255) is there that a new spark will be lit?
-// Higher chance = more roaring fire.  Lower chance = more flickery fire.
-// Default 120, suggested range 50-200.
-uint8_t sparking = 120;
-
-CRGB solidColor = CRGB::Blue;
-
-uint8_t cyclePalettes = 0;
-uint8_t paletteDuration = 10;
-uint8_t currentPaletteIndex = 0;
-unsigned long paletteTimeout = 0;
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-#define DATA_PIN 14 // pins tested so far on the Feather ESP32: 13, 12, 27, 33, 15, 32, 14, SCL
-//#define CLK_PIN   4
+#define DATA_PIN 14 
 #define LED_TYPE WS2811
 #define COLOR_ORDER GRB //GRB
 #define NUM_STRIPS 1
 #define NUM_LEDS_PER_STRIP 30
 #define NUM_LEDS NUM_LEDS_PER_STRIP *NUM_STRIPS
-#define MILLI_AMPS 1000 // IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
+#define MILLI_AMPS 1000 //IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
 #define FRAMES_PER_SECOND 120
 
 // -- NeoMatrix configs
@@ -106,6 +91,7 @@ cLEDMatrix<-MATRIX_TILE_WIDTH, -MATRIX_TILE_HEIGHT, HORIZONTAL_ZIGZAG_MATRIX,
 
 //CRGB leds[NUM_LEDS]; //server version 
 CRGB *leds = ledmatrix[0];
+
 /*
    NEO_MATRIX_TOP, NEO_MATRIX_BOTTOM, NEO_MATRIX_LEFT, NEO_MATRIX_RIGHT:
     Position of the FIRST LED in the FIRST MATRIX; pick two, e.g.
@@ -134,40 +120,21 @@ MATRIX_TILE_H, MATRIX_TILE_V,
     NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG +
     NEO_TILE_TOP + NEO_TILE_LEFT +  NEO_TILE_PROGRESSIVE);
 
-
-// -- The core to run FastLED.show()
-#define FASTLED_SHOW_CORE 0
-
-#include "patterns.h"
-
 #include "field.h"
 #include "fields.h"
-
 #include "secrets.h"
 #include "wifi_local.h"
 #include "web.h"
-/*
-  wifi ssid and password should be added to a file in the sketch named secrets.h
-  the secrets.h file should be added to the .gitignore file and never committed or
-  pushed to public source control (GitHub).
-  const char* ssid = "........";
-  const char* password = "........";
-*/
-
-#include "GifDecoder.hpp"
-
-
+#include "GifDecoder.h"
+// #include "bild.h"
 
 // -- Task handles for use in the notifications
 static TaskHandle_t FastLEDshowTaskHandle = 0;
 static TaskHandle_t userTaskHandle = 0;
 
-
-// --- Gif Stuff taken from SimpleGifAnimViewer.ino 
 File file;
-const char *pathname = "/gifs/filename.gif";
+const char *pathname = "/gif.gif";
 GifDecoder<mw, mh, 11> decoder;
-
 
 bool fileSeekCallback(unsigned long position) { return file.seek(position); }
 unsigned long filePositionCallback(void) { return file.position(); }
@@ -176,14 +143,40 @@ int fileReadBlockCallback(void * buffer, int numberOfBytes) { return file.read((
 void screenClearCallback(void) { matrix->clear(); }
 void updateScreenCallback(void) { matrix->show(); }
 void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
-  CRGB color = CRGB(matrix->gamma[red], matrix->gamma[green], matrix->gamma[blue]);
-  //if you want to display gifs bigger than matrix size, look into example again, theres a bouncing way with offsets
-  matrix->drawPixel(x, y, color);
-}
+    CRGB color = CRGB(matrix->gamma[red], matrix->gamma[green], matrix->gamma[blue]);
+    matrix->drawPixel(x, y, color);
+  } 
 // --- Gif Stuff
 
+void printArray(int* array) {
+  int b;
+  for (b = 0; b < NUM_LEDS; b++) {
+    Serial.print(array[b]);
+    Serial.print(",");
+  }
+}
 
-
+int* convertStrtoArr(String str) { 
+    int str_length = NUM_LEDS; 
+    int arr[str_length] = { 0 }; 
+  
+    int j = 0, i;
+  
+    for (i = 1; i <  array.length()-1 ; i++) { 
+        // if str[i] is ', ' then split 
+        if (str[i] == ',') { 
+            // Increment j to point to next array index
+            j++; 
+        } 
+        else { 
+            // subtract str[i] by 48 to convert it to int 
+            // generate dezimal number by *10  
+            arr[j] = arr[j] * 10 + (str[i] - 48);
+        } 
+    }
+  printArray(arr);
+  return arr;
+} 
 
 void matrix_clear() {
     // FastLED.clear does not work properly with multiple matrices connected via parallel inputs
@@ -194,10 +187,8 @@ void matrix_clear() {
     Call this function instead of FastLED.show(). It signals core 0 to issue a show,
     then waits for a notification that it is done.
 */
-void FastLEDshowESP32()
-{
-  if (userTaskHandle == 0)
-  {
+void FastLEDshowESP32() {
+  if (userTaskHandle == 0) {
     // -- Store the handle of the current task, so that the show task can
     //    notify it when it's done
     userTaskHandle = xTaskGetCurrentTaskHandle();
@@ -215,11 +206,9 @@ void FastLEDshowESP32()
 /** show Task
     This function runs on core 0 and just waits for requests to call FastLED.show()
 */
-void FastLEDshowTask(void *pvParameters)
-{
+void FastLEDshowTask(void *pvParameters) {
   // -- Run forever...
-  for (;;)
-  {
+  for (;;) {
     // -- Wait for the trigger
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
@@ -231,36 +220,29 @@ void FastLEDshowTask(void *pvParameters)
   }
 }
 
-void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
-{
+void listDir(fs::FS &fs, const char *dirname, uint8_t levels) {
   Serial.printf("Listing directory: %s\n", dirname);
 
   File root = fs.open(dirname);
-  if (!root)
-  {
+  if (!root) {
     Serial.println("Failed to open directory");
     return;
   }
-  if (!root.isDirectory())
-  {
+  if (!root.isDirectory()) {
     Serial.println("Not a directory");
     return;
   }
 
   File file = root.openNextFile();
-  while (file)
-  {
-    if (file.isDirectory())
-    {
+  while (file) {
+    if (file.isDirectory()) {
       Serial.print("  DIR : ");
       Serial.println(file.name());
-      if (levels)
-      {
+      if (levels) {
         listDir(fs, file.name(), levels - 1);
       }
     }
-    else
-    {
+    else {
       Serial.print("  FILE: ");
       Serial.print(file.name());
       Serial.print("  SIZE: ");
@@ -270,34 +252,20 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
   }
 }
 
-void nextPattern()
-{
-  // add one to the current pattern number, and wrap around at the end
-  currentPatternIndex = (currentPatternIndex + 1) % patternCount;
-
-  String json = "{\"name\":\"pattern\",\"value\":\"" + String(currentPatternIndex) + "\"}";
-  webSocketsServer.broadcastTXT(json);
-}
-
-void nextPalette()
-{
-  currentPaletteIndex = (currentPaletteIndex + 1) % paletteCount;
-  targetPalette = palettes[currentPaletteIndex];
-
-  String json = "{\"name\":\"palette\",\"value\":\"" + String(currentPaletteIndex) + "\"}";
-  webSocketsServer.broadcastTXT(json);
-}
-
 //displays text which scrolls through screen
 void display_scrollText(String text) {
 
     //calculates font size according to mw(matrix_width)
     uint8_t size = max(int(mw/8), 1);
     matrix->clear();
-    matrix->setTextWrap(false);  // we don't wrap text so it scrolls nicely
+    matrix->setTextWrap(false);  //stops text from standing still
     matrix->setTextSize(size);
     matrix->setRotation(0);  //2 +90 degrees;3 -90 degres; 0 default;1 -180 degrees
-    for (int8_t x=6; x>=-42; x--) {
+    int8_t length = serverstring.length();
+    Serial.println(length);
+    int16_t looplength = length * mw;
+    Serial.println(looplength);
+    for (int8_t x=0; x>=-looplength; x--) {
         //used to be: x=7, x>=-42, x--
 	    yield();
 	    matrix->clear();
@@ -305,17 +273,13 @@ void display_scrollText(String text) {
 	    matrix->setTextColor(LED_GREEN_HIGH);
 	    matrix->print(text);
 	    matrix->show();
-       delay(150); //controls tim intervall between iteration's (how fast text scrolls)
+       delay(100); //controls tim intervall between iteration's (how fast text scrolls)
     }
 }
 
-//generates a well formed bitmaps for Adafruits GFX Backend 
+//generates a well formed bitmaps for Adafruits GFX Backend Konversion von BRG 4 bit Pixelmap zu ein er 5/6/5 RGB Bitmap (https://github.com/marcmerlin/FastLED_NeoMatrix/blob/master/examples/MatrixGFXDemo/MatrixGFXDemo.ino) line 325
 void fixdrawRGBBitmap(int16_t x, int16_t y, const uint16_t *bitmap, int16_t w, int16_t h) {
-/*
-Laut Beispiel ist die Bitmap in bild.h nicht komaptibel mit Adafruit_gfx Biblio, deshalb muss sie konvertiert werden
-Es handelt sich um eine Konversion von BRG 4 bit Pixelmap zu ein er 5/6/5 RGB Bitmap, welche von Adafruit_gfx genutzt wird
-https://github.com/marcmerlin/FastLED_NeoMatrix/blob/master/examples/MatrixGFXDemo/MatrixGFXDemo.ino line 325
-*/
+
     uint16_t RGB_bmp_fixed[w * h];
     for (uint16_t pixel=0; pixel<w*h; pixel++) {
 	    uint8_t r,g,b;
@@ -335,20 +299,164 @@ https://github.com/marcmerlin/FastLED_NeoMatrix/blob/master/examples/MatrixGFXDe
     }
     matrix->drawRGBBitmap(x, y, RGB_bmp_fixed, w, h);
     matrix->show();
+    
 }
 
 //displays Bitmaps, after colors and bits per color has been corrected
-void display_rgbBitmap() { 
+void display_rgbBitmap(uint16_t* bitmapinput) { 
     static uint16_t bmx,bmy;
-    Serial.println("rgb bitmaps started");
-    //clear all Leds
+    //clears all Leds could also try matrix_clear();
     matrix->fillRect(bmx,bmy, bmx+8,bmy+8, LED_BLACK);
-    fixdrawRGBBitmap(0, 0, bitmap, 6, 5);
-     Serial.println("went through with success");
+    fixdrawRGBBitmap(0, 0, bitmapinput, 6, 5);
 }
 
-void setup()
-{
+void display_gif() {
+    matrix->clear();
+    matrix_clear();
+    decoder.decodeFrame();
+}
+
+void bitmapsIterationTest() {
+
+  uint16_t bitmap0[30] = {
+  0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+  uint16_t bitmap1[30] = {
+  0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+  uint16_t bitmap2[30] = {
+  0x0000, 0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+
+  uint16_t bitmap3[30] = {
+  0x0000, 0x0000, 0x0000, 0xFFFF, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+  uint16_t bitmap4[30] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0xFFFF, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+  uint16_t bitmap5[30] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xFFFF,   
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+  uint16_t bitmap6[30] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
+  0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+  };
+
+  uint16_t bitmap7[30] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+  };
+
+  uint16_t bitmap8[30] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+  };
+
+  uint16_t bitmap9[30] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0xFFFF, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+  uint16_t bitmap10[30] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x0000, 0x0000, 0xFFFF, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+  uint16_t bitmap11[30] = {
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xFFFF,
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  };
+
+  //______________
+  int delayTime = 100;
+
+  display_rgbBitmap(bitmap0);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap1);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap2);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap3);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap4);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap5);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap6);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap7);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap8);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap9);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap10);
+  delay(delayTime);
+  //___
+  display_rgbBitmap(bitmap11);
+  delay(delayTime);
+ 
+}
+
+void setup() {
   delay(5000);
   pinMode(led, OUTPUT);
   pinMode(LED_BUILTIN, OUTPUT);
@@ -356,8 +464,8 @@ void setup()
 
   Serial.begin(9600);
 
-  SPIFFS.begin(); //true, worked without errors
-  listDir(SPIFFS, "/", 1);
+  SPIFFS.begin(); 
+  listDir(SPIFFS, "/", 1); //lists SPIFF directory in Serial Monitor String parameter defines path
 
   // restore from memory
   loadFieldsFromEEPROM(fields, fieldCount);
@@ -386,43 +494,43 @@ void setup()
   // -- Create the FastLED show task
   xTaskCreatePinnedToCore(FastLEDshowTask, "FastLEDshowTask", 2048, NULL, 2, &FastLEDshowTaskHandle, FASTLED_SHOW_CORE);
 
-  autoPlayTimeout = millis() + (autoplayDuration * 1000);
-
   //--- Gif Stuff happening here
-  // error gets thrown when calling functions of decoder class;;;FIND OUT WHY;;;;
- decoder.setScreenClearCallback(screenClearCallback);
-  // decoder.setUpdateScreenCallback(updateScreenCallback);
-  // decoder.setDrawPixelCallback(drawPixelCallback);
+  decoder.setScreenClearCallback(screenClearCallback);
+  decoder.setUpdateScreenCallback(updateScreenCallback);
+  decoder.setDrawPixelCallback(drawPixelCallback);
+  decoder.setFileSeekCallback(fileSeekCallback);
+  decoder.setFilePositionCallback(filePositionCallback);
+  decoder.setFileReadCallback(fileReadCallback);
+  decoder.setFileReadBlockCallback(fileReadBlockCallback);
 
-  // decoder.setFileSeekCallback(fileSeekCallback);
-  // decoder.setFilePositionCallback(filePositionCallback);
-  // decoder.setFileReadCallback(fileReadCallback);
-  // decoder.setFileReadBlockCallback(fileReadBlockCallback);
+  file = SPIFFS.open(pathname, "r");
+    if (!file) {
+      Serial.print("Error opening GIF file ");
+      Serial.println(pathname);
+	    while (1) { delay(1000); }; // while 1 loop only triggers watchdog on ESP chips
+    }
+    decoder.startDecoding();
 
-  // file = SPIFFS.open(pathname, "r");
-  //   if (!file) {
-  //     Serial.print("Error opening GIF file ");
-  //     Serial.println(pathname);
-	//     while (1) { delay(1000); }; // while 1 loop only triggers watchdog on ESP chips
-  //   }
-  //   decoder.startDecoding();
-
-  // //--- Gif Stuff ending here
+  //--- Gif Stuff ending here
 }
 
-void loop()
-{
+void loop(){
   handleWeb();
 
-  if (power == 0)
+  if (power == 0) 
   {
     fill_solid(leds, NUM_LEDS, CRGB::Black);
   }
   else
   {
-    // display_scrollText("123");
-    display_rgbBitmap();
-    delay(1000);
+    // display_scrollText(serverstring);
+    // display_rgbBitmap(bitmap);
+    // Serial.print("array = ");
+    // Serial.print(array);
+    // convertStrtoArr(array);
+    // bitmapsIterationTest();
+   
+    display_gif();
     /*
       How will these functions will be called from outside?
 
@@ -433,26 +541,26 @@ void loop()
 
       ---- Text:
       -[x] display_scrollText(String txt); wants texts which will be immeadiatly displayed on matrix
-      -[ ] post method();  
-      -[ ] display_time() external call, that listens on time and changes it value
-
+      -[x] server post method();  
+      -[x] client post method(); 
+      -[x] frontend gui, textinput, fileupload(gif, bitmap)
+  
       ---- Bitmap:
       -[x] display_bitmap
+      -[x] save bitmap into json backend as String
+      -[x] serializing it as an array (hex array -> string -> int array)
+      -[ ] iterieren über bitmaps?
       -[ ] upload bitmap via http POST
 
       ---- GIF:
-      -[ ] display gif on matrix am
-      -[ ] upload Gif via http POST
-
-
+      -[x] import marcmerlin gif decoder
+      -[x] display gif from spiff on matrix 
+      -[ ] upload_Gif() via http POST into in app.js
+      -[ ] save it into SPIFF
 
     */
-
-   // --- Gif Stuff
-  // decoder.decodeFrame();
-   // --- Gif Stuff
   }
-  
+  delay(1000);
   FastLED.delay(1000 / FRAMES_PER_SECOND);
-  Serial.print("End of Loop, starting again...");
+  Serial.print("End of Loop, starting again..."); 
 }
