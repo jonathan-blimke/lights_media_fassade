@@ -68,7 +68,7 @@ String array ="arraymaincpp";
 
 #define DATA_PIN 14 
 #define LED_TYPE WS2811
-#define COLOR_ORDER GRB //GRB
+#define COLOR_ORDER RGB //GRB
 #define NUM_STRIPS 1
 #define NUM_LEDS_PER_STRIP 30
 #define NUM_LEDS NUM_LEDS_PER_STRIP *NUM_STRIPS
@@ -85,11 +85,10 @@ String array ="arraymaincpp";
 #define NUMMATRIX (mw*mh)
 #define LED_GREEN_HIGH 		(63 << 5)
 #define LED_BLACK		0
-
 cLEDMatrix<-MATRIX_TILE_WIDTH, -MATRIX_TILE_HEIGHT, HORIZONTAL_ZIGZAG_MATRIX,
     MATRIX_TILE_H, MATRIX_TILE_V, HORIZONTAL_BLOCKS> ledmatrix;
 
-//CRGB leds[NUM_LEDS]; //server version 
+// CRGB leds[NUM_LEDS]; //server version 
 CRGB *leds = ledmatrix[0];
 
 /*
@@ -126,13 +125,14 @@ MATRIX_TILE_H, MATRIX_TILE_V,
 #include "wifi_local.h"
 #include "web.h"
 #include "GifDecoder.h"
-// #include "bild.h"
 
 // -- Task handles for use in the notifications
 static TaskHandle_t FastLEDshowTaskHandle = 0;
 static TaskHandle_t userTaskHandle = 0;
 
 File file;
+int OFFSETX =  -1;
+int OFFSETY =  0;
 const char *pathname = "/gif.gif";
 GifDecoder<mw, mh, 11> decoder;
 
@@ -144,9 +144,26 @@ void screenClearCallback(void) { matrix->clear(); }
 void updateScreenCallback(void) { matrix->show(); }
 void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
     CRGB color = CRGB(matrix->gamma[red], matrix->gamma[green], matrix->gamma[blue]);
-    matrix->drawPixel(x, y, color);
+    // matrix->drawPixel(x, y, color);
+     matrix->drawPixel(x+OFFSETX, y+OFFSETY, color);
   } 
 // --- Gif Stuff
+
+void makeFileonSpiffs() {
+  
+   File file = SPIFFS.open("/test.txt", FILE_WRITE);
+    if (!file) {
+      Serial.println("There was an error opening the file for writing");
+      return;
+    }
+    if (file.print("TEST")) {
+      Serial.println("File was written");
+    } else {
+      Serial.println("File write failed");
+    }
+}
+
+
 
 void printArray(int* array) {
   int b;
@@ -156,9 +173,9 @@ void printArray(int* array) {
   }
 }
 
-int* convertStrtoArr(String str) { 
+uint16_t* convertStrtoArr(String str) { 
     int str_length = NUM_LEDS; 
-    int arr[str_length] = { 0 }; 
+    uint16_t arr[str_length] = { 0 }; 
   
     int j = 0, i;
   
@@ -174,7 +191,7 @@ int* convertStrtoArr(String str) {
             arr[j] = arr[j] * 10 + (str[i] - 48);
         } 
     }
-  printArray(arr);
+  // printArray(arr);
   return arr;
 } 
 
@@ -312,14 +329,14 @@ void display_rgbBitmap(uint16_t* bitmapinput) {
 
 void display_gif() {
     matrix->clear();
-    matrix_clear();
     decoder.decodeFrame();
+    //clear?
 }
 
 void bitmapsIterationTest() {
 
   uint16_t bitmap0[30] = {
-  0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0xFFFF, 0xc330, 0x333c, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
@@ -327,7 +344,7 @@ void bitmapsIterationTest() {
   };
 
   uint16_t bitmap1[30] = {
-  0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0xFFFF, 0xc330, 0x333c, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
@@ -335,7 +352,7 @@ void bitmapsIterationTest() {
   };
 
   uint16_t bitmap2[30] = {
-  0x0000, 0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0xFFFF, 0xc330, 0x333c, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
@@ -344,7 +361,7 @@ void bitmapsIterationTest() {
 
 
   uint16_t bitmap3[30] = {
-  0x0000, 0x0000, 0x0000, 0xFFFF, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0xFFFF, 0xc330, 0x333c,    
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
@@ -507,11 +524,11 @@ void setup() {
     if (!file) {
       Serial.print("Error opening GIF file ");
       Serial.println(pathname);
-	    while (1) { delay(1000); }; // while 1 loop only triggers watchdog on ESP chips
+	    while (1) { delay(1000); }; // 1 while 1 loop only triggers watchdog on ESP chips
     }
     decoder.startDecoding();
-
   //--- Gif Stuff ending here
+
 }
 
 void loop(){
@@ -519,7 +536,8 @@ void loop(){
 
   if (power == 0) 
   {
-    fill_solid(leds, NUM_LEDS, CRGB::Black);
+    // fill_solid(leds, NUM_LEDS, CRGB::Black);
+    bitmapsIterationTest();
   }
   else
   {
@@ -528,9 +546,15 @@ void loop(){
     // Serial.print("array = ");
     // Serial.print(array);
     // convertStrtoArr(array);
-    // bitmapsIterationTest();
-   
+    
+  
+    // matrix_clear();
     display_gif();
+    // decoder.decodeFrame();
+    // delay(5000);
+    // makeFileonSpiffs();
+    // listDir(SPIFFS, "/", 0);
+    // display_rgbBitmap(convertStrtoArr(array));
     /*
       How will these functions will be called from outside?
 
@@ -549,8 +573,10 @@ void loop(){
       -[x] display_bitmap
       -[x] save bitmap into json backend as String
       -[x] serializing it as an array (hex array -> string -> int array)
-      -[ ] iterieren über bitmaps?
+      -[x] iterieren über bitmaps?
+      -[ ] complete cycle pars int into 4 bit hex values
       -[ ] upload bitmap via http POST
+      -[ ] parse them into 4 bit hex value
 
       ---- GIF:
       -[x] import marcmerlin gif decoder
@@ -560,7 +586,8 @@ void loop(){
 
     */
   }
-  delay(1000);
-  FastLED.delay(1000 / FRAMES_PER_SECOND);
+  // delay(1000);
+  
+  // FastLED.delay( 1000 / FRAMES_PER_SECOND);
   Serial.print("End of Loop, starting again..."); 
 }

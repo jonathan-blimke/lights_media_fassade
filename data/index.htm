@@ -35,6 +35,12 @@
     <div id="container" class="container">
         <form class="form-horizontal" id="form">
         </form>
+        <form id="upload" method="post" action="upload.php" enctype="multipart/form-data">
+            <input type="file" name="uploadctl" multiple />
+            <ul id="fileList">
+              <!-- The file list will be shown here -->
+            </ul>
+          </form>
     </div>
 
     <div id="templates" style="display: none">
@@ -72,8 +78,9 @@
                 </div>
             </div>
         </div>
+       
     </div>
-
+    
     <!-- /.row -->
 
     <nav class="navbar navbar-default navbar-fixed-bottom">

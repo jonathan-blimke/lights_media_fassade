@@ -40,10 +40,9 @@ $(document).ready(function () {
   .fail(function (jqXHR, textStatus, error) {
     console.log("Post error: " + error);
   });
-    // .fail(function (errorThrown) {
-    //   console.log("error in fail: " + errorThrown);
-    // });
 });
+
+
 
 function updateFieldValue(name, value) {
   var group = $("#form-group-" + name);

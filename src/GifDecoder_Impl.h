@@ -29,6 +29,7 @@
 #define GIFDEBUG 0
 #define tempBufferSz 260
 
+
 #if defined (ARDUINO)
 #include <Arduino.h>
 #elif defined (SPARK)
@@ -588,12 +589,8 @@ void GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::parseTableBasedImage() {
 
     // Make sure there is at least some delay between frames
     if (frameDelay < 1) {
-        // Serial.println(frameDelay + "is set to 100");
         frameDelay = 1;
-
     }
-    
-    
 
     // Decompress LZW data and display the frame
     decompressAndDisplayFrame(filePositionAfter);
@@ -679,27 +676,26 @@ int GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::parseData() {
     return ERROR_NONE;
 }
 
-#undef ESP32
 #ifdef ESP32
 // SmartMatrix teensylc branch src/ESP32MemDisplay
-// #include "ESP32MemDisplay.h"
+//#include "ESP32MemDisplay.h"
 #endif
 
 void *mallocordie(const char *varname, uint32_t req) {
     Serial.print("Malloc ");
     Serial.print(varname);
-    Serial.print("in GifDecoder startDecoding. Requested bytes: ");
+    Serial.print(" in GifDecoder startDecoding. Requested bytes: ");
     Serial.println(req);
     void *mem = malloc(req);
     if (mem) {
-	return mem;
+  return mem;
     } else {
-	Serial.print("FATAL: malloc failed for ");
-	Serial.println(varname);
+  Serial.print("FATAL: malloc failed for ");
+  Serial.println(varname);
         #ifdef ESP32
-	show_esp32_all_mem();
+//  show_esp32_all_mem();
         #endif
-	while (1);
+  while (1);
     }
     return NULL;
 }
@@ -707,18 +703,18 @@ void *mallocordie(const char *varname, uint32_t req) {
 template <int maxGifWidth, int maxGifHeight, int lzwMaxBits>
 int GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::startDecoding(void) {
     if (!stack) {
-	stack =  (uint8_t *)		mallocordie("stack", LZW_SIZTABLE);
-	prefix = (uint16_t *)		mallocordie("prefix", LZW_SIZTABLE*2);
-	suffix = (uint8_t *)		mallocordie("suffix", LZW_SIZTABLE);
-	imageData = (uint8_t *)	mallocordie("imageData", gifsize);
-	imageDataBU = (uint8_t *)	mallocordie("imageDataBU", gifsize);
-	palette = (rgb_24 *)		mallocordie("palette", sizeof(rgb_24)*256);
-	tempBuffer = (char *)		mallocordie("tempBuffer", tempBufferSz);
+  stack =  (uint8_t *)    mallocordie("stack", LZW_SIZTABLE);
+  prefix = (uint16_t *)   mallocordie("prefix", LZW_SIZTABLE*2);
+  suffix = (uint8_t *)    mallocordie("suffix", LZW_SIZTABLE);
+  imageData = (uint8_t *) mallocordie("imageData", gifsize);
+  imageDataBU = (uint8_t *) mallocordie("imageDataBU", gifsize);
+  palette = (rgb_24 *)    mallocordie("palette", sizeof(rgb_24)*256);
+  tempBuffer = (char *)   mallocordie("tempBuffer", tempBufferSz);
 
         #ifdef ESP32
-	show_esp32_all_mem();
+ // show_esp32_all_mem();
         #endif
-    }	
+    } 
 
     // Initialize variables
     keyFrame = true;
@@ -760,7 +756,7 @@ int GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::decodeFrame(void) {
         keyFrame = true;
         prevDisposalMethod = DISPOSAL_NONE;
         transparentColorIndex = NO_TRANSPARENT_INDEX;
-        nextFrameTime_ms = 10; 
+        nextFrameTime_ms = 0;
         fileSeekCallback(0);
 
         // parse Gif Header like with a new file
@@ -856,5 +852,3 @@ void GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::decompressAndDisplayFram
     if(updateScreenCallback)
         (*updateScreenCallback)();
 }
-
- #define ESP32 //previously undefined !!!!!
