@@ -1,5 +1,9 @@
 /*
-  asdfasdf
+  This is marcmerlin SimpleGifAnimViewer example integrated into piotrkochan project with some of my own adjustments
+  
+  piotrkochan: https://github.com/piotrkochan/esp32-fastled-webserver-platformio#this-is-a-platformio-fork-of-esp32-fastled-web-server
+  marcmerlin: https://github.com/marcmerlin/AnimatedGIFs
+
 
    ESP32 FastLED WebServer: https://github.com/jasoncoon/esp32-fastled-webserver
    Copyright (C) 2017 Jason Coon
@@ -532,11 +536,9 @@ void loop(){
   }
   else
   {
-
+  
     display_gif();
-    // decoder.decodeFrame();
-  
-  
+    //decoder.decodeFrame();
   }
 
   
