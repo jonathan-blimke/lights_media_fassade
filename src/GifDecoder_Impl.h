@@ -26,7 +26,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#define GIFDEBUG 0
+#define GIFDEBUG 1
 #define tempBufferSz 260
 
 
@@ -677,6 +677,7 @@ int GifDecoder<maxGifWidth, maxGifHeight, lzwMaxBits>::parseData() {
 }
 
 #ifdef ESP32
+
 // SmartMatrix teensylc branch src/ESP32MemDisplay
 //#include "ESP32MemDisplay.h"
 #endif

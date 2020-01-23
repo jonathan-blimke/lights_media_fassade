@@ -38,9 +38,10 @@
 #include <FS.h>
 #include <SPIFFS.h>
 #include <EEPROM.h>
-#include <Adafruit_GFX.h>
+// #include <Adafruit_GFX.h>
 #include <FastLED_NeoMatrix.h>
-#include <LEDMatrix.h>
+// #include <Framebuffer_GFX.h>
+
 
 
 AsyncWebServer webServer(80);
@@ -66,7 +67,7 @@ String array ="arraymaincpp";
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-#define DATA_PIN 14 
+#define DATA_PIN 15 
 #define LED_TYPE WS2811
 #define COLOR_ORDER RGB //GRB
 #define NUM_STRIPS 1
@@ -85,11 +86,8 @@ String array ="arraymaincpp";
 #define NUMMATRIX (mw*mh)
 #define LED_GREEN_HIGH 		(63 << 5)
 #define LED_BLACK		0
-cLEDMatrix<-MATRIX_TILE_WIDTH, -MATRIX_TILE_HEIGHT, HORIZONTAL_ZIGZAG_MATRIX,
-    MATRIX_TILE_H, MATRIX_TILE_V, HORIZONTAL_BLOCKS> ledmatrix;
 
-// CRGB leds[NUM_LEDS]; //server version 
-CRGB *leds = ledmatrix[0];
+CRGB matrixleds[NUMMATRIX];
 
 /*
    NEO_MATRIX_TOP, NEO_MATRIX_BOTTOM, NEO_MATRIX_LEFT, NEO_MATRIX_RIGHT:
@@ -113,7 +111,7 @@ CRGB *leds = ledmatrix[0];
     zig-zag order, the orientation of the matrices in alternate rows
     will be rotated 180 degrees (this is normal -- simplifies wiring).
     */
-FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, MATRIX_TILE_WIDTH, MATRIX_TILE_HEIGHT,
+FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(matrixleds, MATRIX_TILE_WIDTH, MATRIX_TILE_HEIGHT,
 MATRIX_TILE_H, MATRIX_TILE_V,
   NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
     NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG +
@@ -131,10 +129,11 @@ static TaskHandle_t FastLEDshowTaskHandle = 0;
 static TaskHandle_t userTaskHandle = 0;
 
 File file;
-int OFFSETX =  -1;
+int OFFSETX =  0;
 int OFFSETY =  0;
 const char *pathname = "/gif.gif";
-GifDecoder<mw, mh, 11> decoder;
+GifDecoder<mw, mh, 12> decoder;
+
 
 bool fileSeekCallback(unsigned long position) { return file.seek(position); }
 unsigned long filePositionCallback(void) { return file.position(); }
@@ -194,11 +193,6 @@ uint16_t* convertStrtoArr(String str) {
   // printArray(arr);
   return arr;
 } 
-
-void matrix_clear() {
-    // FastLED.clear does not work properly with multiple matrices connected via parallel inputs
-    memset(leds, 0, NUMMATRIX*3);
-}
 
 /** show() for ESP32
     Call this function instead of FastLED.show(). It signals core 0 to issue a show,
@@ -490,9 +484,9 @@ void setup() {
   setupWifi();
   setupWeb();
 
-  //FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  //FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, dNUM_LEDS).setCorrection(TypicalLEDStrip);
   //FastLED.addLeds<NEOPIXEL,DATA_PIN>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); //server version
-  FastLED.addLeds<NEOPIXEL,DATA_PIN>(leds, NUMMATRIX).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<NEOPIXEL,DATA_PIN>(matrixleds, NUMMATRIX).setCorrection(TypicalLEDStrip);
   Serial.print("Matrix Size: ");
   Serial.print(mw);
   Serial.print(" ");
@@ -511,7 +505,6 @@ void setup() {
   // -- Create the FastLED show task
   xTaskCreatePinnedToCore(FastLEDshowTask, "FastLEDshowTask", 2048, NULL, 2, &FastLEDshowTaskHandle, FASTLED_SHOW_CORE);
 
-  //--- Gif Stuff happening here
   decoder.setScreenClearCallback(screenClearCallback);
   decoder.setUpdateScreenCallback(updateScreenCallback);
   decoder.setDrawPixelCallback(drawPixelCallback);
@@ -527,8 +520,6 @@ void setup() {
 	    while (1) { delay(1000); }; // 1 while 1 loop only triggers watchdog on ESP chips
     }
     decoder.startDecoding();
-  //--- Gif Stuff ending here
-
 }
 
 void loop(){
@@ -541,52 +532,13 @@ void loop(){
   }
   else
   {
-    // display_scrollText(serverstring);
-    // display_rgbBitmap(bitmap);
-    // Serial.print("array = ");
-    // Serial.print(array);
-    // convertStrtoArr(array);
-    
-  
-    // matrix_clear();
+
     display_gif();
     // decoder.decodeFrame();
-    // delay(5000);
-    // makeFileonSpiffs();
-    // listDir(SPIFFS, "/", 0);
-    // display_rgbBitmap(convertStrtoArr(array));
-    /*
-      How will these functions will be called from outside?
-
-      3 Major functionalities will be implemented
-      Text 
-      Bitmap 
-      gif 
-
-      ---- Text:
-      -[x] display_scrollText(String txt); wants texts which will be immeadiatly displayed on matrix
-      -[x] server post method();  
-      -[x] client post method(); 
-      -[x] frontend gui, textinput, fileupload(gif, bitmap)
   
-      ---- Bitmap:
-      -[x] display_bitmap
-      -[x] save bitmap into json backend as String
-      -[x] serializing it as an array (hex array -> string -> int array)
-      -[x] iterieren über bitmaps?
-      -[ ] complete cycle pars int into 4 bit hex values
-      -[ ] upload bitmap via http POST
-      -[ ] parse them into 4 bit hex value
-
-      ---- GIF:
-      -[x] import marcmerlin gif decoder
-      -[x] display gif from spiff on matrix 
-      -[ ] upload_Gif() via http POST into in app.js
-      -[ ] save it into SPIFF
-
-    */
+  
   }
-  // delay(1000);
+
   
   // FastLED.delay( 1000 / FRAMES_PER_SECOND);
   Serial.print("End of Loop, starting again..."); 
