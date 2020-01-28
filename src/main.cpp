@@ -1,6 +1,6 @@
 /*
   This is marcmerlin SimpleGifAnimViewer example integrated into piotrkochan project with some of my own adjustments
-  
+
   piotrkochan: https://github.com/piotrkochan/esp32-fastled-webserver-platformio#this-is-a-platformio-fork-of-esp32-fastled-web-server
   marcmerlin: https://github.com/marcmerlin/AnimatedGIFs
 
@@ -45,6 +45,9 @@
 // #include <Adafruit_GFX.h>
 #include <FastLED_NeoMatrix.h>
 // #include <Framebuffer_GFX.h>
+#include<iostream>
+#include<sstream>
+#include <iomanip>
 
 
 
@@ -67,13 +70,11 @@ uint16_t bitmap[30] = {
 };
 String array ="arraymaincpp";
 
-
-
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
 #define DATA_PIN 15 
 #define LED_TYPE WS2811
-#define COLOR_ORDER RGB //GRB
+#define COLOR_ORDER GRB //GRB
 #define NUM_STRIPS 1
 #define NUM_LEDS_PER_STRIP 30
 #define NUM_LEDS NUM_LEDS_PER_STRIP *NUM_STRIPS
@@ -155,6 +156,7 @@ void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t
 void makeFileonSpiffs() {
   
    File file = SPIFFS.open("/test.txt", FILE_WRITE);
+   
     if (!file) {
       Serial.println("There was an error opening the file for writing");
       return;
@@ -166,15 +168,21 @@ void makeFileonSpiffs() {
     }
 }
 
-
-
-void printArray(int* array) {
+void printArray(uint16_t* array) {
   int b;
+  uint16_t hexarray[NUMMATRIX]= {0x0000};
   for (b = 0; b < NUM_LEDS; b++) {
-    Serial.print(array[b]);
+// https://stackoverflow.com/questions/5100718/integer-to-hex-string-in-c
+    // Serial.print(array[b]);
+    std::stringstream stringstraem;
+    stringstraem << std::hex << array[b];
+    std::string result = stringstraem.str();
+    // Serial.print(result); 
     Serial.print(",");
   }
 }
+
+
 
 uint16_t* convertStrtoArr(String str) { 
     int str_length = NUM_LEDS; 
@@ -182,7 +190,7 @@ uint16_t* convertStrtoArr(String str) {
   
     int j = 0, i;
   
-    for (i = 1; i <  array.length()-1 ; i++) { 
+    for (i = 1; i <  NUMMATRIX ; i++) {  //NUMMATRIX
         // if str[i] is ', ' then split 
         if (str[i] == ',') { 
             // Increment j to point to next array index
@@ -194,9 +202,10 @@ uint16_t* convertStrtoArr(String str) {
             arr[j] = arr[j] * 10 + (str[i] - 48);
         } 
     }
-  // printArray(arr);
+  printArray(arr);
+
   return arr;
-} 
+}
 
 /** show() for ESP32
     Call this function instead of FastLED.show(). It signals core 0 to issue a show,
@@ -292,7 +301,7 @@ void display_scrollText(String text) {
     }
 }
 
-//generates a well formed bitmaps for Adafruits GFX Backend Konversion von BRG 4 bit Pixelmap zu ein er 5/6/5 RGB Bitmap (https://github.com/marcmerlin/FastLED_NeoMatrix/blob/master/examples/MatrixGFXDemo/MatrixGFXDemo.ino) line 325
+//generates a well formed bitmaps for Adafruits GFX Backend Konversion von BRG 4/4/4 bit Pixelmap zu ein er 5/6/5 RGB Bitmap (https://github.com/marcmerlin/FastLED_NeoMatrix/blob/master/examples/MatrixGFXDemo/MatrixGFXDemo.ino) line 325
 void fixdrawRGBBitmap(int16_t x, int16_t y, const uint16_t *bitmap, int16_t w, int16_t h) {
 
     uint16_t RGB_bmp_fixed[w * h];
@@ -532,16 +541,26 @@ void loop(){
   if (power == 0) 
   {
     // fill_solid(leds, NUM_LEDS, CRGB::Black);
-    bitmapsIterationTest();
+    // bitmapsIterationTest();
   }
   else
   {
-  
-    display_gif();
-    //decoder.decodeFrame();
+    // display_gif();
+    Serial.print("array variable in main: ");
+    convertStrtoArr(array);
+    // decoder.decodeFrame();
+
+    /*
+      Rest API polishing:
+      unint_16* into hex parsing
+      writing things properly into json
+
+      General polish:
+      entferne GIF stuff
+      sende Bitmap data an Webserver
+    */
   }
 
-  
   // FastLED.delay( 1000 / FRAMES_PER_SECOND);
   Serial.print("End of Loop, starting again..."); 
 }

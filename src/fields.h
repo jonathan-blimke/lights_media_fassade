@@ -53,21 +53,60 @@ String setText(String value) {
 
 String setBitmapArray(String value) {
  array = value;
+ /*
+    input string = "25353, 12412, ..."
+    main array data = input
+
+ */
  return (String) array; 
 }
 
 String getBitmapArray() {
-  array = "[";
-    for( unsigned int a = 0; a < NUM_LEDS; a = a + 1 ) {
-      array += bitmap[a];
-      if(a < (NUM_LEDS - 1) ){
-        array += ",";
-      }
+  // array = "[";
+  //   for( unsigned int a = 1; a < NUMMATRIX; a = a + 1 ) {
+  //     array += bitmap[a];
+  //     if(a < (NUM_LEDS - 1) ){
+  //       array += ",";
+  //     }
       
-    }
-  array += "]";
-  return array;
+  //   }
+  // array += "]";
+  return (String)array;
 }
+
+String arrayToString(uint16_t *array){
+  String returnvalue ="init";
+
+  for( int a = 1; a < NUMMATRIX; a = a + 1 ) {
+      returnvalue += array[a];
+      if(a < (NUM_LEDS - 1) ){
+        returnvalue += ",";
+      } 
+    }
+    return returnvalue;
+}
+
+uint16_t* stringToArray(String str) {
+    int str_length = NUM_LEDS; 
+    uint16_t arr[str_length] = { 0 }; 
+    int j = 0, i;
+  
+    for (i = 1; i <  NUMMATRIX ; i++) {  //NUMMATRIX
+        // if str[i] is ', ' then split 
+        if (str[i] == ',') { 
+            j++; // Increment j to point to next array index
+        } 
+        else { 
+            // subtract str[i] by 48 to convert it to int 
+            // generate dezimal number by *10  
+            arr[j] = arr[j] * 10 + (str[i] - 48);
+        } 
+    }
+
+  return arr;
+
+}
+
 
 FieldList fields = {
   { "power", "Power", BooleanFieldType, 0, 1, NULL, getPower, NULL, setPower },
@@ -83,7 +122,7 @@ uint8_t fieldCount = ARRAY_SIZE(fields);
         [x] define  name; label; type; ; ; getBitmapArray; ; setBitmapArray;
         [ ] display it on matrix via main
         [ ] save several bitmaps (as frames into it)
-        [ ] iterate over bitmaps 
+        [x] iterate over bitmaps 
        
   step two, add frontend support 
         [ ] display it via App.js and Bootstrap

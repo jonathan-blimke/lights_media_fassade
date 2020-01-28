@@ -31,7 +31,7 @@ Gifs are located in Data which are uploaded to SPIFFS
 
 
 ## Features
-### :
+
 
 ### List:
 * [x] Displaying hex arraysbitmaps 

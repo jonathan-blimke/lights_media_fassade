@@ -74,19 +74,12 @@ void setupWeb()
   });
 
 //___
-  webServer.on("/showtext", HTTP_GET, [](AsyncWebServerRequest *request) {
+  webServer.on("/amicool?", HTTP_GET, [](AsyncWebServerRequest *request) {
     
-    String text = "text dummy";
+    String text = "YES YOU ARE";
 
     request->send(200, "text", text);
    
-  });
-
-  webServer.on("/sendtext", HTTP_POST, [](AsyncWebServerRequest *request) {
-    
-    String name = request->getParam("name", true)->value();
-    request->send(200, "text/json", name);
-
   });
 
   webServer.on("/fieldValue", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -118,6 +111,8 @@ void setupWeb()
     request->send(200, "text/json", newValue);
     digitalWrite(LED_BUILTIN, LOW);
   });
+
+  
 
   
 
