@@ -96,15 +96,13 @@ void setupWeb()
 
     Field field = getField(name, fields, fieldCount);
     String value;
-    if (field.type == ColorFieldType)
-    {
+    if (field.type == ColorFieldType) {
       String r = request->getParam("r", true)->value();
       String g = request->getParam("g", true)->value();
       String b = request->getParam("b", true)->value();
       value = r + "," + g + "," + b;
     }
-    else
-    {
+    else {
       value = request->getParam("value", true)->value();
     }
     String newValue = setFieldValue(name, value, fields, fieldCount);

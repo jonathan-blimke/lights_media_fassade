@@ -73,5 +73,7 @@ function rgbToHex(r, g, b) {
         let b = bitmap.pixels[i+2]; //g
         let hexcolor = rgbToHex(r,b,g);
         console.debug(hexcolor);
+
+        // from rgb888(24bit colordepth) to rgb565 ((16bit colordepth))
        }
   }
