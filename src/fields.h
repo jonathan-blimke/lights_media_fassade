@@ -103,23 +103,16 @@ uint16_t* stringToArray(String str) {
             j++; // Increment j to point to next array index
         }
         else { 
-            // subtract str[i] by 48 to convert it to int 
-            // generate dezimal number by *10  
-            // Serial.print(" i|" + i +"|= ");
-            
-            // Serial.print(str[i]);
-
-            Serial.print(" j=" );
-            Serial.print(j);
-            Serial.print(", bitmap= ");
-            Serial.print(bitmap[j]);
+    
+            // Serial.print(" j=" );
+            // Serial.print(j);
+            // Serial.print(", bitmap= ");
+            // Serial.print(bitmap[j]);
             bitmap[j] = bitmap[j] * 10 + (str[i] - 48);
-            
-
         }
     }
-    Serial.print("stringToArray");
-    printTHATArray(bitmap);
+    // Serial.print("stringToArray");
+    // printTHATArray(bitmap);
     return bitmap;
   
 } 
@@ -150,19 +143,3 @@ FieldList fields = {
 };
 
 uint8_t fieldCount = ARRAY_SIZE(fields);
-
-/*
- step one, save bitmap into Fieldlist
-        [x] define  name; label; type; ; ; getBitmapArray; ; setBitmapArray;
-        [ ] display it on matrix via main
-        [ ] save several bitmaps (as frames into it)
-        [x] iterate over bitmaps 
- step one.1: send bitmaps via Post
-
-       
-  step two, add frontend support 
-        [ ] display it via App.js and Bootstrap
-        [ ] upload it on Server via postValue, Access body data
-
-
-*/

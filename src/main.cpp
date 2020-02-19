@@ -42,23 +42,16 @@
 #include <FS.h>
 #include <SPIFFS.h>
 #include <EEPROM.h>
-// #include <Adafruit_GFX.h>
 #include <FastLED_NeoMatrix.h>
-// #include <Framebuffer_GFX.h>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-// #include <bits/stdc++.h> 
-// #include <boost/algorithm/string.hpp> 
-
-
 
 AsyncWebServer webServer(80);
 WebSocketsServer webSocketsServer = WebSocketsServer(81);
 
 const int led = 32;
 const int LED_BUILTIN = 2;
-
 
 uint8_t power = 1;
 String serverstring = "";
@@ -89,8 +82,6 @@ String array = "";
 #define NUM_LEDS NUM_LEDS_PER_STRIP *NUM_STRIPS
 #define MILLI_AMPS 1000 //IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
 #define FRAMES_PER_SECOND 120
-
-// -- NeoMatrix configs
 #define MATRIX_TILE_WIDTH   6 // width of EACH NEOPIXEL MATRIX (not total display)
 #define MATRIX_TILE_HEIGHT  5 // height of each matrix
 #define MATRIX_TILE_H       1  // number of matrices arranged horizontally
@@ -101,7 +92,7 @@ String array = "";
 #define LED_GREEN_HIGH 		(63 << 5)
 #define LED_BLACK		0
 
-boolean booli = false;
+
 
 CRGB matrixleds[NUMMATRIX];
 
@@ -138,31 +129,11 @@ MATRIX_TILE_H, MATRIX_TILE_V,
 #include "secrets.h"
 #include "wifi_local.h"
 #include "web.h"
-#include "GifDecoder.h"
 
 // -- Task handles for use in the notifications
 static TaskHandle_t FastLEDshowTaskHandle = 0;
 static TaskHandle_t userTaskHandle = 0;
 
-File file;
-int OFFSETX =  0;
-int OFFSETY =  0;
-const char *pathname = "/gif.gif";
-GifDecoder<mw, mh, 12> decoder;
-
-
-bool fileSeekCallback(unsigned long position) { return file.seek(position); }
-unsigned long filePositionCallback(void) { return file.position(); }
-int fileReadCallback(void) { return file.read(); }
-int fileReadBlockCallback(void * buffer, int numberOfBytes) { return file.read((uint8_t*)buffer, numberOfBytes); }
-void screenClearCallback(void) { matrix->clear(); }
-void updateScreenCallback(void) { matrix->show(); }
-void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
-    CRGB color = CRGB(matrix->gamma[red], matrix->gamma[green], matrix->gamma[blue]);
-    // matrix->drawPixel(x, y, color);
-     matrix->drawPixel(x+OFFSETX, y+OFFSETY, color);
-  } 
-// --- Gif Stuff
 
 void makeFileonSpiffs() {
   
@@ -186,15 +157,6 @@ void printArray(uint16_t* array) {
     Serial.print(","); 
   }
 }
-
-
-// String decToHex(int dec_value) {
-//   std::stringstream strs;
-//   strs << std::hex << dec_value;
-//   std::string hexstr(strs.str());
-//   // Serial.println(hexstr.c_str());
-//   return hexstr.c_str();
-// }
 
 
 int hexToDec(std::string hex_value) {
@@ -347,11 +309,6 @@ void display_rgbBitmap(uint16_t* bitmapinput) {
     fixdrawRGBBitmap(0, 0, bitmapinput, 6, 5);
 }
 
-void display_gif() {
-    matrix->clear();
-    decoder.decodeFrame();
-    //clear?
-}
 
 void bitmapsIterationTest() {
 
@@ -674,8 +631,6 @@ void bitmapsIterationTest() {
   
 }
 
-
-
 void setup() {
   delay(5000);
   pinMode(led, OUTPUT);
@@ -693,8 +648,6 @@ void setup() {
   setupWifi();
   setupWeb();
 
-  //FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, dNUM_LEDS).setCorrection(TypicalLEDStrip);
-  //FastLED.addLeds<NEOPIXEL,DATA_PIN>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); //server version
   FastLED.addLeds<WS2812, DATA_PIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalSMD5050);
   Serial.print("Matrix Size: ");
   Serial.print(mw);
@@ -714,66 +667,22 @@ void setup() {
   // -- Create the FastLED show task
   xTaskCreatePinnedToCore(FastLEDshowTask, "FastLEDshowTask", 2048, NULL, 2, &FastLEDshowTaskHandle, FASTLED_SHOW_CORE);
 
-  decoder.setScreenClearCallback(screenClearCallback);
-  decoder.setUpdateScreenCallback(updateScreenCallback);
-  decoder.setDrawPixelCallback(drawPixelCallback);
-  decoder.setFileSeekCallback(fileSeekCallback);
-  decoder.setFilePositionCallback(filePositionCallback);
-  decoder.setFileReadCallback(fileReadCallback);
-  decoder.setFileReadBlockCallback(fileReadBlockCallback);
-
-  file = SPIFFS.open(pathname, "r");
-    if (!file) {
-      Serial.print("Error opening GIF file ");
-      Serial.println(pathname);
-	    while (1) { delay(1000); }; // 1 while 1 loop only triggers watchdog on ESP chips
-    }
-    decoder.startDecoding();
 }
 
-void loop(){
+void loop() {
   handleWeb();
-
-
 
   if (power == 0) 
   {
     // fill_solid(matrixleds, NUM_LEDS, CRGB::Black);
-    // bitmapsIterationTest();
-    display_rgbBitmap(bitmapXY);
+    bitmapsIterationTest();
+    // display_rgbBitmap(bitmapXY);
   }
   else
   {
-
-    // if(!booli){
-    //   booli = true;
-  
-    // printArray(bitmap);
-    // matrix->clear();
-
     display_rgbBitmap(bitmap);
     delay(1000);
-    // } 
-    // Serial.print(hexToDec("0xC")); //returns 12
-    // Serial.print(decToHex(12)); //returns c 
-    // Serial.print(serverstring);
-    // display_rgbBitmap(bitmap);
-    // delay(2000);
    
-    // display_gif();
-    // Serial.print("array variable in main: ");
-    // convertStrtoArr(array);
-    // decoder.decodeFrame();
-    // hexToString();
-    /*
-      Rest API polishing:
-      unint_16* into hex parsing
-      writing things properly into json
-
-      General polish:
-      entferne GIF stuff
-      sende Bitmap data an Webserver21530402456384529107
-    */
   }
   delay(1000);
   // FastLED.delay( 1000 / FRAMES_PER_SECOND);
