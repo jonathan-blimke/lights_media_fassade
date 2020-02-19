@@ -83,7 +83,7 @@ String array = "";
 
 #define DATA_PIN 15 
 #define LED_TYPE WS2812B
-#define COLOR_ORDER GRB //GRB
+#define COLOR_ORDER GBR //GRB
 #define NUM_STRIPS 1
 #define NUM_LEDS_PER_STRIP 30
 #define NUM_LEDS NUM_LEDS_PER_STRIP *NUM_STRIPS
@@ -695,7 +695,7 @@ void setup() {
 
   //FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, dNUM_LEDS).setCorrection(TypicalLEDStrip);
   //FastLED.addLeds<NEOPIXEL,DATA_PIN>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); //server version
-  FastLED.addLeds<WS2812B, DATA_PIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalPixelString);
+  FastLED.addLeds<WS2812, DATA_PIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalSMD5050);
   Serial.print("Matrix Size: ");
   Serial.print(mw);
   Serial.print(" ");

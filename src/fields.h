@@ -79,7 +79,7 @@ String arrayToString(uint16_t *array) {
       // returnvalue += decToHex(array[a]);  //to write hex values in json
       
       returnvalue += array[a]; //to write decimal values into json
-      if(a < (NUM_LEDS - 1) ) {
+      if(a < (NUMMATRIX - 1) ) { //changed from NUM_LEDS
         returnvalue += ",";
       } 
     }
