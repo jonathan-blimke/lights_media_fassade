@@ -206,33 +206,3 @@ function delayPostValue(name, value) {
     postValue(name, value);
   }, 300);
 }
-
-// function postString(name, value){
-//   $("#status").html("Setting " + name + ": " + value +", please wait...");
-
-//   var body = {
-//     name: name,
-//     value: value
-
-//   };
-//   // http://192.168.0.140/sendtext?value=stringvalue&name=label
-//   $.post(urlBase + 'sendtext' + "&name=" + name + '?value=' + value, body, function (data) {
-//     $("#status").html("Set " + name + ": " + data.value);
-//   })
-//     .fail(function (textStatus, errorThrown) {
-//       $("#status").html("Fail: " + textStatus + " " + errorThrown);
-//     }); 
-// }
-
-// function postData(data) {
-//   $("#status").html("Daten werden übertragen");
-
-//   var body = {
-//     data: data //tbh no clue what this does; writing data into body probably
-//   }
-
-//   $.post(urlBase + 'postData', body, function(data){
-//     console.debug(data);
-//     $("#status").html("es scheint etwas passiert zu sein");
-//   });
-// }

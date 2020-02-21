@@ -111,9 +111,6 @@ void setupWeb()
   });
 
   
-
-  
-
   webServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
   webServer.begin();
   Serial.println("HTTP server started");

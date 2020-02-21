@@ -134,7 +134,6 @@ MATRIX_TILE_H, MATRIX_TILE_V,
 static TaskHandle_t FastLEDshowTaskHandle = 0;
 static TaskHandle_t userTaskHandle = 0;
 
-
 void makeFileonSpiffs() {
   
    File file = SPIFFS.open("/test.txt", FILE_WRITE);
@@ -157,7 +156,6 @@ void printArray(uint16_t* array) {
     Serial.print(","); 
   }
 }
-
 
 int hexToDec(std::string hex_value) {
   std::stringstream ss;
@@ -288,7 +286,7 @@ void fixdrawRGBBitmap(int16_t x, int16_t y, const uint16_t *bitmap, int16_t w, i
 	    g = (color & 0x0F0) >> 4;
 	    r = color & 0x00F;
 
-	    // expand from 4/4/4 bits per color to 5/6/5
+	    //expand from 4/4/4 bits per color to 5/6/5
     	b = map(b, 0, 15, 0, 31);
     	g = map(g, 0, 15, 0, 63);
     	r = map(r, 0, 15, 0, 31);
@@ -648,17 +646,17 @@ void setup() {
   setupWifi();
   setupWeb();
 
-  FastLED.addLeds<WS2812, DATA_PIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalSMD5050);
+  FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalPixelString);
+  FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
+  FastLED.setBrightness(brightness);
+
   Serial.print("Matrix Size: ");
   Serial.print(mw);
   Serial.print(" ");
   Serial.println(mh);
+
   matrix->begin();
   matrix->setTextWrap(false);
-  FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
-
-  //set master brightness control
-  FastLED.setBrightness(brightness);
 
   int core = xPortGetCoreID();
   Serial.print("Main code running on core ");

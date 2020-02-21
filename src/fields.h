@@ -76,9 +76,9 @@ String arrayToString(uint16_t *array) {
   returnvalue +="[";
   for( int a = 0; a < NUMMATRIX; a = a + 1 ) {
        
-      // returnvalue += decToHex(array[a]);  //to write hex values in json
+      returnvalue += decToHex(array[a]);  //to write hex values in json
       
-      returnvalue += array[a]; //to write decimal values into json
+      // returnvalue += array[a]; //to write decimal values into json
       if(a < (NUMMATRIX - 1) ) { //changed from NUM_LEDS
         returnvalue += ",";
       } 
@@ -119,17 +119,17 @@ uint16_t* stringToArray(String str) {
 
 
 String getBitmapArray() {
-  Serial.print("getBitmapArray= ");
-  Serial.print(arrayToString(bitmap));
+  // Serial.print("getBitmapArray= ");
+  // Serial.print(arrayToString(bitmap));
   return arrayToString(bitmap);
   
 }
 
 String setBitmapArray(String value) {
-  Serial.print("sssetBitmapArray= ");
-  Serial.print(value);
+  // Serial.print("sssetBitmapArray= ");
+  // Serial.print(value);
   stringToArray(value);
- 
+  
  return arrayToString(bitmap); 
 }
 
