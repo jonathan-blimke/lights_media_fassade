@@ -24,6 +24,7 @@
 //#include "wifi_local.h"
 #include <WiFi.h>
 
+
 uint8_t connectTry = 0;
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
@@ -74,11 +75,11 @@ void setupWeb()
   });
 
 //___
-  webServer.on("/amicool?", HTTP_GET, [](AsyncWebServerRequest *request) {
+  webServer.on("/json", HTTP_POST, [](AsyncWebServerRequest *request) {
     
     String text = "YES YOU ARE";
 
-    request->send(200, "text", text);
+    request->send(200, "json", text);
    
   });
 
@@ -96,21 +97,18 @@ void setupWeb()
 
     Field field = getField(name, fields, fieldCount);
     String value;
-    if (field.type == ColorFieldType) {
-      String r = request->getParam("r", true)->value();
-      String g = request->getParam("g", true)->value();
-      String b = request->getParam("b", true)->value();
-      value = r + "," + g + "," + b;
-    }
-    else {
-      value = request->getParam("value", true)->value();
-    }
+    // if (field.type == ColorFieldType) {
+    //   String r = request->getParam("r", true)->value();
+    // }
+    
+    value = request->getParam("value", true)->value();
+    
     String newValue = setFieldValue(name, value, fields, fieldCount);
     request->send(200, "text/json", newValue);
     digitalWrite(LED_BUILTIN, LOW);
   });
 
-  
+ 
   webServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
   webServer.begin();
   Serial.println("HTTP server started");

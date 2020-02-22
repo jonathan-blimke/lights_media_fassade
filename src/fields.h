@@ -21,11 +21,13 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-void printTHATArray(uint16_t* array) {
-  
-  for (int b = 0; b < NUMMATRIX; b++) {
-    Serial.print(array[b]);
-    Serial.print(","); 
+void printTHATArray(std::vector<uint16_t> input) {
+  std::vector<uint16_t>::iterator iter;  
+  int i = 0;  //data counter
+
+  for(iter = input.begin(); iter != input.end(); ++iter,i++ ) {
+    Serial.print(*iter);
+    Serial.print(", ");
   }
 }
 
@@ -71,66 +73,105 @@ String decToHex(int dec_value) {
 }
 
 //converts an array of integers into an String with a "," as separator
-String arrayToString(uint16_t *array) {
+String arrayToString(std::vector<uint16_t> frames) {
   String returnvalue;
   returnvalue +="[";
-  for( int a = 0; a < NUMMATRIX; a = a + 1 ) {
+  
+  // for( int a = 0; a < NUMMATRIX; a = a + 1 ) {
        
-      returnvalue += decToHex(array[a]);  //to write hex values in json
+  //     // returnvalue += decToHex(array[a]);  //to write hex values in json ::: why is hex code wrong?
       
-      // returnvalue += array[a]; //to write decimal values into json
-      if(a < (NUMMATRIX - 1) ) { //changed from NUM_LEDS
-        returnvalue += ",";
-      } 
-    }
+  //     returnvalue += array[a]; //to write decimal values into json
+  //     if(a < ((NUMMATRIX) - 1) ) { //changed from NUM_LEDS
+  //       returnvalue += ",";
+  //     } 
+  //   }
+  std::vector<uint16_t>::iterator iter;  
+  int i = 0;  //data counter
+
+  for(iter = frames.begin(); iter != frames.end(); ++iter,i++ ) {
+    returnvalue += *iter;
+    returnvalue += ",";
+  }
     returnvalue +="]";
     return returnvalue;
 }
 
-void clearBitmap(){
-  for(int i = 0; i < NUMMATRIX; i ++){
-    bitmap[i] = 0;
+
+void clearNBitmap(){
+  for(int i = 0; i < NUMMATRIX*2; i ++){
+    bitmapNframes[i] = 0;
   }
 }
 
+void clearBitmap() {
+ 
+  
+}
+void clearFrameData() {
+ std::vector<uint16_t>::iterator iter;  
+  int i = 0;  //data counter
+
+  for(iter = frameData.begin(); iter != frameData.end(); ++iter,i++ ) {
+    frameData[i]=0;
+  }
+}
+//1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60
 //converts decimal String in int signatur like "42" into an actual decimal int = 42
-uint16_t* stringToArray(String str) {   
+std::vector<uint16_t> stringToArray(String str) {   
     int j = 0, i;
-    clearBitmap();
+    // clearFrameData();
+    frameData.clear();
     for (i = 0; i <  str.length() ; i++) {  //NUMMATRIX
         // if str[i] is ', ' then split 
         if (str[i] == ',') { 
             j++; // Increment j to point to next array index
         }
         else { 
-    
-            // Serial.print(" j=" );
-            // Serial.print(j);
-            // Serial.print(", bitmap= ");
-            // Serial.print(bitmap[j]);
-            bitmap[j] = bitmap[j] * 10 + (str[i] - 48);
+            frameData[j] = frameData[j] * 10 + (str[i] - 48);
+            //  bitmap[j] = bitmap[j] * 10 + (str[i] - 48);
         }
     }
     // Serial.print("stringToArray");
-    // printTHATArray(bitmap);
-    return bitmap;
+    printTHATArray(frameData);
+    return frameData;  
+} 
+
+//if string contains more than NUMMMATRIX values
+uint16_t* stringFramesToArray(String str) {   
+    int j = 0, i;
+    clearNBitmap();
+    
+    for (i = 0; i <  str.length() ; i++) {  //NUMMATRIX
+        // if str[i] is ', ' then split 
+        if (str[i] == ',') { 
+            j++; // Increment j to point to next array index
+        }  else {
+          bitmapNframes[j] = bitmapNframes[j] * 10 + (str[i] - 48);
+        }
+      
+    }
+    
+    // Serial.print("stringToArray");
+    // printTHATArray(bitmapNframes);
+    return bitmapNframes;
   
 } 
 
 
 String getBitmapArray() {
-  // Serial.print("getBitmapArray= ");
-  // Serial.print(arrayToString(bitmap));
-  return arrayToString(bitmap);
+  return arrayToString(frameData);
   
 }
 
 String setBitmapArray(String value) {
-  // Serial.print("sssetBitmapArray= ");
+  // Serial.print("set Value: ");
+  //prints the value it actually recieves more than size of array in main
   // Serial.print(value);
   stringToArray(value);
+  // stringFramesToArray(value);
   
- return arrayToString(bitmap); 
+ return arrayToString(frameData); 
 }
 
 
@@ -138,7 +179,7 @@ String setBitmapArray(String value) {
 FieldList fields = {
   { "power", "Power", BooleanFieldType, 0, 1, NULL, getPower, NULL, setPower },
   { "brightness", "Brightness", NumberFieldType, 1, 255, NULL, getBrightness, NULL, setBrightness },
-  { "text", "Text", TextFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray },
+  { "text", "Text", TextFieldType, 0, 1, NULL, getText, NULL, setText },
   { "array", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray}
 };
 
