@@ -107,6 +107,23 @@ void clearValueBuffer() {
  
   
 }
+
+// template <typename Out>
+// void split(const std::string &s, char delim, Out result) {
+//     std::istringstream iss(s);
+//     std::string item;
+//     while (std::getline(iss, item, delim)) {
+//         *result++ = item;
+//     }
+// }
+// //usage:  std::vector<std::string> stringValues = split(str.c_str(),',');
+// std::vector<std::string> split(const std::string &s, char delim) {
+//     std::vector<std::string> elems;
+//     split(s, delim, std::back_inserter(elems));
+//     return elems;
+
+// }
+
 void clearFrameData() {
  std::vector<uint16_t>::iterator iter;  
   int i = 0;  //data counter
@@ -123,25 +140,44 @@ std::vector<uint16_t> stringToArray(String str) {
   //  clearFrameData(); //uncomment
    frameData.clear(); //last change
    clearValueBuffer();
-    // std::stringstream sstr(str);
+   std::stringstream sstr(str.c_str());
+   
+   std::string token;
+   size_t size =0;
+   while(std::getline(sstr, token, ',')) {
+    //  Serial.print(token.c_str());
+     std::stringstream ss(token.c_str());
+     uint16_t intvalue;
+     ss >> intvalue;
+     Serial.print(intvalue, HEX);
+     frameData.push_back(intvalue);
+    //  uint16_t int = std::stoi(token.c_str());
+      // size_t length = token.length();
+      // size=size + 2;
+    //  std::istringstream strm(token.substr(size, 2));
+    //  uint16_t x;
+    //  strm >> std::dec >> x;
+    //  Serial.print(x, DEC);
+    // frameData.push_back(x);
+   }
+  
     
-    for (i = 0; i <  str.length() ; i++) { 
-        // if str[i] is ', ' then split 
-        if (str[i] == ',') { 
-            j++; // calculates numbers of Values
-        }
-        else {
-          valueBuffer[j] = valueBuffer[j] * 10 + (str[i]- 48);
-          //replace with vector
-          //write at specific position
-          
+    // for (i = 0; i <  str.length() ; i++) { 
+    //     // if str[i] is ', ' then split 
+    //     if (str[i] == ',') { 
+    //         j++; // calculates numbers of Values
+        
+    //     }
+    //     else {
+    //       valueBuffer[j] = valueBuffer[j] * 10 + (str[i]- 48);
+    //       //replace with vector
+    //       //write at specific position v.at(1)
+    //     }
+    // }
 
-        }
-    }
-
-    for(int a=0; a <= j;a++) { //valueBuffers pushes wrong data
-      frameData.push_back(valueBuffer[a]);
-    }
+    // for(int a=0; a <= j;a++) { //valueBuffers pushes wrong data
+    //   frameData.push_back(valueBuffer[a]);
+    // }
     
     // printTHATArray(frameData);
     return frameData;  

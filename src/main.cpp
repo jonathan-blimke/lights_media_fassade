@@ -47,6 +47,9 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <string>
+#include <iterator>
+
 
 
 
@@ -82,6 +85,21 @@ uint16_t bitmapLila[30] = {
   0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D,
   0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D,
   0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D
+};
+uint16_t bitmapRot[30] = {
+  0xF800, 0xF800, 0xF800, 0xF800, 0xF800, 0xF800,
+  0xF800, 0xF800, 0xF800, 0xF800, 0xF800, 0xF800,
+  0xF800, 0xF800, 0xF800, 0xF800, 0xF800, 0xF800,
+  0xF800, 0xF800, 0xF800, 0xF800, 0xF800, 0xF800,
+  0xF800, 0xF800, 0xF800, 0xF800, 0xF800, 0xF800
+};
+
+uint16_t bitmapBlau[30] ={
+  0x029F, 0x029F, 0x029F, 0x029F, 0x029F, 0x029F,
+  0x029F, 0x029F, 0x029F, 0x029F, 0x029F, 0x029F,
+  0x029F, 0x029F, 0x029F, 0x029F, 0x029F, 0x029F,
+  0x029F, 0x029F, 0x029F, 0x029F, 0x029F, 0x029F,
+  0x029F, 0x029F, 0x029F, 0x029F, 0x029F, 0x029F
 };
 
 String array = "";
@@ -181,7 +199,7 @@ uint16_t* vectorTest = &frameData[0];
 #define NUM_LEDS_PER_STRIP 30
 #define NUM_LEDS NUM_LEDS_PER_STRIP *NUM_STRIPS
 #define MILLI_AMPS 4000 //IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
-#define FRAMES_PER_SECOND 1
+#define FRAMES_PER_SECOND 5
 #define MATRIX_TILE_WIDTH   6 // width of EACH NEOPIXEL MATRIX (not total display)
 #define MATRIX_TILE_HEIGHT  5 // height of each matrix
 #define MATRIX_TILE_H       1  // number of matrices arranged horizontally
@@ -738,58 +756,85 @@ void diplayFrames() {
   singleFrame.clear();
   
   std::vector<uint16_t>::iterator it;  
+  std::vector<uint16_t>::iterator it2;  
   int i = 0;  //data counter
   int f = 0;  //frame counter
+  int i2 = 0;  //data counter
+  int f2 = 0;  //frame counter
+
+  // int testcounter=0;
 
   for(it = frameData.begin(); it != frameData.end(); it++,i++ ) {
 
     // Serial.print(*it,DEC);
-    Serial.print(",");
+    // Serial.print(",");
 
     if((i % NUMMATRIX)==0) { 
       f++;
+      // Serial.print("Frame");
+      // Serial.print(f);
+      // Serial.println(" : ");
       for(int z=0;z<NUMMATRIX;z++) {
+  
         singleFrame.push_back(frameData[i+z]);
-        Serial.print(frameData[i + z]);
-        Serial.print(",");
-        // frameBitmap[z] = frameData[i+z];
+        // testcounter++;
+        // Serial.print(frameData[i + z]);
+        // Serial.print(",");
         
       }
-      matrix->clear();
-      // matrix->fillRect(0,0, 0+mh,0+mw, LED_BLACK);
-      //replace array with vector  &frameData[0];
-      // matrix->drawRGBBitmap(0, 0, frameBitmap, mw, mh);
-      matrix->drawRGBBitmap(0, 0, &singleFrame[0], mw, mh);
-
-      // fixdrawRGBBitmap(0, 0, frameBitmap, mw, mh);
+      // Serial.println(" ");
       
-      // FastLEDshowESP32();
-      // FastLED.delay(1000 / FRAMES_PER_SECOND);
-      // clearFrameBitmap(frameBitmap);
+      for(it2 = singleFrame.begin(); it2 != singleFrame.end(); it2++,i2++ ) {
+          Serial.print(*it2);
+          Serial.print(",");
       }
+      matrix->clear(); //lastchange
+
+      display_rgbBitmap(&singleFrame[0]);
+      singleFrame.clear();
+      FastLED.delay(1000 / FRAMES_PER_SECOND);
+
+
     }
+  }
 }
 
-void testColours() {
+void matrix_clear() {
+    // FastLED.clear does not work properly with multiple matrices connected via parallel inputs
+    memset(matrixleds, 0, NUMMATRIX*3);
+    
+}
 
+
+//works worse than the other
+void testColours() {
+  Serial.print(" ___without color shift ");
   // matrix->drawRGBBitmap(0, 0, bitmapXY, mw, mh);
-  // FastLED.delay(2000);
-   static uint16_t bmx,bmy;
-    //clears all Leds could also try matrix_clear();
-    matrix->fillRect(bmx,bmy, bmx+8,bmy+8, LED_BLACK);
-  matrix->drawRGBBitmap(0, 0, bitmapLila, mw, mh);
+  // // FastLED.delay(2000);
+  //  static uint16_t bmx,bmy;
+  //   //clears all Leds could also try matrix_clear();
+  //   matrix->fillRect(bmx,bmy, bmx+8,bmy+8, LED_BLACK);
+  matrix_clear();
+  matrix->drawRGBBitmap(0, 0, bitmapRot, mw, mh);
+  delay(2000);
+  matrix_clear();
+  matrix->drawRGBBitmap(0, 0, bitmapBlau, mw, mh);
 }
 
 void testColoursWithShift(){
-
+   Serial.print(" :::with color shift ");
   // display_rgbBitmap(bitmapXY);
   // FastLED.delay(2000);
-   static uint16_t bmx,bmy;
-    //clears all Leds could also try matrix_clear();
-    matrix->fillRect(bmx,bmy, bmx+8,bmy+8, LED_BLACK);
-  display_rgbBitmap(bitmapLila);
-
+  //  static uint16_t bmx,bmy;
+  //   //clears all Leds could also try matrix_clear();
+  //   matrix->fillRect(bmx,bmy, bmx+8,bmy+8, LED_BLACK);
+  matrix_clear();
+  display_rgbBitmap(bitmapRot);
+  delay(2000);
+  // matrix_clear();
+  // display_rgbBitmap(bitmapBlau);
 }
+
 
 void setup() {
   delay(5000);
@@ -835,24 +880,25 @@ void loop() {
 
   if (power == 0) 
   {
-    // fill_solid(matrixleds, NUM_LEDS, CRGB::Black);
+    fill_solid(matrixleds, NUM_LEDS, CRGB::Black);
     
     // bitmapsIterationTest();
-    Serial.print(" without color shit ");
-    testColours();
+    testColoursWithShift();
+    // testColours();
     // display_rgbBitmap(bitmapXY);
   }
   else
   {
     // delay(2000);
-    Serial.print(" with color shit ");
-    testColoursWithShift();
-    // diplayFrames();
+    fill_solid(matrixleds, NUM_LEDS, CRGB::Black);
+   
+    
+    diplayFrames();
     // display_rgbBitmap(vectorTest);
     // delay(1000);
    
   }
-  delay(3000);
+  // delay(3000);
   
   //Serial.println("End of Loop, starting again..."); 
 }
