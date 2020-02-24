@@ -21,15 +21,15 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-void printTHATArray(std::vector<uint16_t> input) {
-  std::vector<uint16_t>::iterator iter;  
-  int i = 0;  //data counter
+// void printTHATArray(std::vector<uint16_t> input) {
+//   std::vector<uint16_t>::iterator iter;  
+//   int i = 0;  //data counter
 
-  for(iter = input.begin(); iter != input.end(); ++iter,i++ ) {
-    Serial.print(*iter);
-    Serial.print(", ");
-  }
-}
+//   for(iter = input.begin(); iter != input.end(); ++iter,i++ ) {
+//     Serial.print(*iter);
+//     Serial.print(", ");
+//   }
+// }
 
 String getPower() {
   return String(power);
@@ -72,26 +72,22 @@ String decToHex(int dec_value) {
   return hexstr.c_str();
 }
 
-//converts an array of integers into an String with a "," as separator
+//converts an array of integers into an JSON conform string
 String arrayToString(std::vector<uint16_t> frames) {
-  String returnvalue;
+  String returnvalue; //return String in JSON array syntax
   returnvalue +="[";
-  
-  // for( int a = 0; a < NUMMATRIX; a = a + 1 ) {
-       
-  //     // returnvalue += decToHex(array[a]);  //to write hex values in json ::: why is hex code wrong?
-      
-  //     returnvalue += array[a]; //to write decimal values into json
-  //     if(a < ((NUMMATRIX) - 1) ) { //changed from NUM_LEDS
-  //       returnvalue += ",";
-  //     } 
-  //   }
   std::vector<uint16_t>::iterator iter;  
-  int i = 0;  //data counter
+  int i = 0;  //counter
 
-  for(iter = frames.begin(); iter != frames.end(); ++iter,i++ ) {
+  for(iter = frames.begin(); iter != frames.end(); iter++,i++ ) {
     returnvalue += *iter;
-    returnvalue += ",";
+    if( i < frames.size()-1) {
+      returnvalue += ",";
+    }
+    // if(iter != frames.end()) { 
+    //  returnvalue += ",";
+    // }
+
   }
     returnvalue +="]";
     return returnvalue;
@@ -104,7 +100,10 @@ void clearNBitmap(){
   }
 }
 
-void clearBitmap() {
+void clearValueBuffer() {
+ for(int i = 0; i < 10000; i++){
+   valueBuffer[i] = 0;
+ }
  
   
 }
@@ -113,27 +112,38 @@ void clearFrameData() {
   int i = 0;  //data counter
 
   for(iter = frameData.begin(); iter != frameData.end(); ++iter,i++ ) {
-    frameData[i]=0;
+    frameData.erase(iter); //last change
   }
 }
 //1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60
-//converts decimal String in int signatur like "42" into an actual decimal int = 42
+
+//parse's string into std::vector<uint16:t> frameData
 std::vector<uint16_t> stringToArray(String str) {   
     int j = 0, i;
-    // clearFrameData();
-    frameData.clear();
-    for (i = 0; i <  str.length() ; i++) {  //NUMMATRIX
+  //  clearFrameData(); //uncomment
+   frameData.clear(); //last change
+   clearValueBuffer();
+    // std::stringstream sstr(str);
+    
+    for (i = 0; i <  str.length() ; i++) { 
         // if str[i] is ', ' then split 
         if (str[i] == ',') { 
-            j++; // Increment j to point to next array index
+            j++; // calculates numbers of Values
         }
-        else { 
-            frameData[j] = frameData[j] * 10 + (str[i] - 48);
-            //  bitmap[j] = bitmap[j] * 10 + (str[i] - 48);
+        else {
+          valueBuffer[j] = valueBuffer[j] * 10 + (str[i]- 48);
+          //replace with vector
+          //write at specific position
+          
+
         }
     }
-    // Serial.print("stringToArray");
-    printTHATArray(frameData);
+
+    for(int a=0; a <= j;a++) { //valueBuffers pushes wrong data
+      frameData.push_back(valueBuffer[a]);
+    }
+    
+    // printTHATArray(frameData);
     return frameData;  
 } 
 
@@ -165,12 +175,7 @@ String getBitmapArray() {
 }
 
 String setBitmapArray(String value) {
-  // Serial.print("set Value: ");
-  //prints the value it actually recieves more than size of array in main
-  // Serial.print(value);
-  stringToArray(value);
-  // stringFramesToArray(value);
-  
+ stringToArray(value);
  return arrayToString(frameData); 
 }
 

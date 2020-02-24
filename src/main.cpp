@@ -66,13 +66,24 @@ uint16_t bitmap[30] = {
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
 0x0000, 0x0000, 0x0000, 0x0000, 0xFFFF, 0x000F,  
 };
-uint16_t bitmapXY[30] = {
-0xF19C, 0xF19C, 0xF19C, 0x0F00, 0xF000, 0xAB10,     
-0xFCBC, 0xFCBC, 0xFCBC, 0x0000, 0x0000, 0x0000,     
-0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
-0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
-0x0000, 0x0000, 0x0000, 0x0000, 0xFFFF, 0x000F,  
+uint16_t valueBuffer[10000];
+
+uint16_t bitmapXY[30] = { //some warm orange
+0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3,     
+0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3,       
+0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3,       
+0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3,    
+0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3,    
 };
+
+uint16_t bitmapLila[30] = {
+  0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D,
+  0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D,
+  0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D,
+  0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D,
+  0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D, 0x8A7D
+};
+
 String array = "";
 
 uint16_t bitmapNframes[60] = {
@@ -87,18 +98,24 @@ uint16_t bitmapNframes[60] = {
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
   0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x003C,  
 };
-
+std::vector<uint16_t> singleFrame = {
+  0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
+};  
 std::vector <uint16_t> frameData  = { 
 0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,//Frame2
-// 0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000,     
-// 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
-// 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
-// 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
-// 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,//Frame3
+0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000,     
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,//Frame3
 // 0x0000, 0x0000, 0xFFFF, 0x0000, 0x0000, 0x0000,     
 // 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
 // 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     
@@ -164,7 +181,7 @@ uint16_t* vectorTest = &frameData[0];
 #define NUM_LEDS_PER_STRIP 30
 #define NUM_LEDS NUM_LEDS_PER_STRIP *NUM_STRIPS
 #define MILLI_AMPS 4000 //IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
-#define FRAMES_PER_SECOND 10
+#define FRAMES_PER_SECOND 1
 #define MATRIX_TILE_WIDTH   6 // width of EACH NEOPIXEL MATRIX (not total display)
 #define MATRIX_TILE_HEIGHT  5 // height of each matrix
 #define MATRIX_TILE_H       1  // number of matrices arranged horizontally
@@ -714,37 +731,64 @@ void bitmapsIterationTest() {
   
 }
 
-void clearFrameBitmap(uint16_t* array){
-  for(int i = 0; i < NUMMATRIX; i ++){
-    array[i] = 0;
-  }
-}
 
 void diplayFrames() {
   
-  uint16_t frameBitmap[NUMMATRIX] = {0};
+  // uint16_t frameBitmap[NUMMATRIX] = {0};
+  singleFrame.clear();
+  
   std::vector<uint16_t>::iterator it;  
   int i = 0;  //data counter
   int f = 0;  //frame counter
-  static uint16_t bmx,bmy;
 
-  for(it = frameData.begin(); it != frameData.end(); ++it,i++ ) {
+  for(it = frameData.begin(); it != frameData.end(); it++,i++ ) {
 
-    // Serial.print(*it,HEX);
-    // Serial.print(",");
+    // Serial.print(*it,DEC);
+    Serial.print(",");
 
     if((i % NUMMATRIX)==0) { 
       f++;
       for(int z=0;z<NUMMATRIX;z++) {
-        frameBitmap[z] = frameData[i+z];
+        singleFrame.push_back(frameData[i+z]);
+        Serial.print(frameData[i + z]);
+        Serial.print(",");
+        // frameBitmap[z] = frameData[i+z];
+        
       }
       matrix->clear();
-      matrix->drawRGBBitmap(0, 0, frameBitmap, mw, mh);
+      // matrix->fillRect(0,0, 0+mh,0+mw, LED_BLACK);
+      //replace array with vector  &frameData[0];
+      // matrix->drawRGBBitmap(0, 0, frameBitmap, mw, mh);
+      matrix->drawRGBBitmap(0, 0, &singleFrame[0], mw, mh);
+
+      // fixdrawRGBBitmap(0, 0, frameBitmap, mw, mh);
+      
       // FastLEDshowESP32();
-      FastLED.delay(1000 / FRAMES_PER_SECOND);
-      clearFrameBitmap(frameBitmap);
+      // FastLED.delay(1000 / FRAMES_PER_SECOND);
+      // clearFrameBitmap(frameBitmap);
       }
     }
+}
+
+void testColours() {
+
+  // matrix->drawRGBBitmap(0, 0, bitmapXY, mw, mh);
+  // FastLED.delay(2000);
+   static uint16_t bmx,bmy;
+    //clears all Leds could also try matrix_clear();
+    matrix->fillRect(bmx,bmy, bmx+8,bmy+8, LED_BLACK);
+  matrix->drawRGBBitmap(0, 0, bitmapLila, mw, mh);
+}
+
+void testColoursWithShift(){
+
+  // display_rgbBitmap(bitmapXY);
+  // FastLED.delay(2000);
+   static uint16_t bmx,bmy;
+    //clears all Leds could also try matrix_clear();
+    matrix->fillRect(bmx,bmy, bmx+8,bmy+8, LED_BLACK);
+  display_rgbBitmap(bitmapLila);
+
 }
 
 void setup() {
@@ -764,7 +808,7 @@ void setup() {
   setupWifi();
   setupWeb();
 
-  FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalPixelString);
+  FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(matrixleds, NUMMATRIX).setCorrection(TypicalSMD5050);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
   FastLED.setBrightness(brightness);
 
@@ -792,18 +836,23 @@ void loop() {
   if (power == 0) 
   {
     // fill_solid(matrixleds, NUM_LEDS, CRGB::Black);
-    bitmapsIterationTest();
+    
+    // bitmapsIterationTest();
+    Serial.print(" without color shit ");
+    testColours();
     // display_rgbBitmap(bitmapXY);
   }
   else
   {
     // delay(2000);
-    diplayFrames();
+    Serial.print(" with color shit ");
+    testColoursWithShift();
+    // diplayFrames();
     // display_rgbBitmap(vectorTest);
     // delay(1000);
    
   }
-  // delay(1000);
+  delay(3000);
   
   //Serial.println("End of Loop, starting again..."); 
 }
