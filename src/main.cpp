@@ -760,8 +760,6 @@ void diplayFrames() {
   int i = 0;  //data counter
   int f = 0;  //frame counter
   int i2 = 0;  //data counter
-  int f2 = 0;  //frame counter
-
   // int testcounter=0;
 
   for(it = frameData.begin(); it != frameData.end(); it++,i++ ) {
@@ -780,6 +778,7 @@ void diplayFrames() {
         // testcounter++;
         // Serial.print(frameData[i + z]);
         // Serial.print(",");
+        //it
         
       }
       // Serial.println(" ");
@@ -793,8 +792,6 @@ void diplayFrames() {
       display_rgbBitmap(&singleFrame[0]);
       singleFrame.clear();
       FastLED.delay(1000 / FRAMES_PER_SECOND);
-
-
     }
   }
 }
@@ -823,16 +820,10 @@ void testColours() {
 
 void testColoursWithShift(){
    Serial.print(" :::with color shift ");
-  // display_rgbBitmap(bitmapXY);
-  // FastLED.delay(2000);
-  //  static uint16_t bmx,bmy;
-  //   //clears all Leds could also try matrix_clear();
-  //   matrix->fillRect(bmx,bmy, bmx+8,bmy+8, LED_BLACK);
   matrix_clear();
   display_rgbBitmap(bitmapRot);
   delay(2000);
-  // matrix_clear();
-  // display_rgbBitmap(bitmapBlau);
+
 }
 
 

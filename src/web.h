@@ -103,6 +103,18 @@ void setupWeb()
     request->send(200, "text/json", newValue);
     digitalWrite(LED_BUILTIN, LOW);
   });
+  webServer.on("/fieldValueHEX24", HTTP_POST, [](AsyncWebServerRequest *request) {
+    digitalWrite(LED_BUILTIN, HIGH);
+    String name = request->getParam("name", true)->value();
+
+    Field field = getField(name, fields, fieldCount);
+    String value;  
+    value = request->getParam("value", true)->value();
+    
+    String newValue = setFieldValue(name, value, fields, fieldCount);
+    request->send(200, "text/json", newValue);
+    digitalWrite(LED_BUILTIN, LOW);
+  });
 
  
   webServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");

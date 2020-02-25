@@ -93,36 +93,11 @@ String arrayToString(std::vector<uint16_t> frames) {
     return returnvalue;
 }
 
-
-void clearNBitmap(){
-  for(int i = 0; i < NUMMATRIX*2; i ++){
-    bitmapNframes[i] = 0;
-  }
-}
-
 void clearValueBuffer() {
  for(int i = 0; i < 10000; i++){
    valueBuffer[i] = 0;
- }
- 
-  
+ } 
 }
-
-// template <typename Out>
-// void split(const std::string &s, char delim, Out result) {
-//     std::istringstream iss(s);
-//     std::string item;
-//     while (std::getline(iss, item, delim)) {
-//         *result++ = item;
-//     }
-// }
-// //usage:  std::vector<std::string> stringValues = split(str.c_str(),',');
-// std::vector<std::string> split(const std::string &s, char delim) {
-//     std::vector<std::string> elems;
-//     split(s, delim, std::back_inserter(elems));
-//     return elems;
-
-// }
 
 void clearFrameData() {
  std::vector<uint16_t>::iterator iter;  
@@ -135,15 +110,15 @@ void clearFrameData() {
 //1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60
 
 //parse's string into std::vector<uint16:t> frameData
-std::vector<uint16_t> stringToArray(String str) {   
-    int j = 0, i;
-  //  clearFrameData(); //uncomment
-   frameData.clear(); //last change
-   clearValueBuffer();
+//std::vector<uint16_t>
+void stringToArray(String str) {   
+  //  clearFrameData();
+   frameData.clear(); 
    std::stringstream sstr(str.c_str());
-   
    std::string token;
-   size_t size =0;
+   size_t size = 0;
+   
+
    while(std::getline(sstr, token, ',')) {
     //  Serial.print(token.c_str());
      std::stringstream ss(token.c_str());
@@ -151,58 +126,35 @@ std::vector<uint16_t> stringToArray(String str) {
      ss >> intvalue;
      Serial.print(intvalue, HEX);
      frameData.push_back(intvalue);
-    //  uint16_t int = std::stoi(token.c_str());
-      // size_t length = token.length();
-      // size=size + 2;
-    //  std::istringstream strm(token.substr(size, 2));
-    //  uint16_t x;
-    //  strm >> std::dec >> x;
-    //  Serial.print(x, DEC);
-    // frameData.push_back(x);
-   }
   
-    
-    // for (i = 0; i <  str.length() ; i++) { 
-    //     // if str[i] is ', ' then split 
-    //     if (str[i] == ',') { 
-    //         j++; // calculates numbers of Values
-        
-    //     }
-    //     else {
-    //       valueBuffer[j] = valueBuffer[j] * 10 + (str[i]- 48);
-    //       //replace with vector
-    //       //write at specific position v.at(1)
-    //     }
-    // }
-
-    // for(int a=0; a <= j;a++) { //valueBuffers pushes wrong data
-    //   frameData.push_back(valueBuffer[a]);
-    // }
-    
-    // printTHATArray(frameData);
-    return frameData;  
+   }  
+    // printTHATArray(frameData);  
 } 
 
-//if string contains more than NUMMMATRIX values
-uint16_t* stringFramesToArray(String str) {   
-    int j = 0, i;
-    clearNBitmap();
-    
-    for (i = 0; i <  str.length() ; i++) {  //NUMMATRIX
-        // if str[i] is ', ' then split 
-        if (str[i] == ',') { 
-            j++; // Increment j to point to next array index
-        }  else {
-          bitmapNframes[j] = bitmapNframes[j] * 10 + (str[i] - 48);
-        }
-      
-    }
-    
-    // Serial.print("stringToArray");
-    // printTHATArray(bitmapNframes);
-    return bitmapNframes;
+void stringToHexArray(String str) {   
+  //  clearFrameData();
+   frameData.clear(); 
+   std::stringstream sstr(str.c_str());
+   std::string token;
+   size_t size = 0;
+   
+
+   while(std::getline(sstr, token, ',')) {
+    //  Serial.print(token.c_str());
+     std::stringstream ss(token.c_str());
+     uint16_t intvalue;
+     ss >> std::hex >> intvalue;
+
+    //  std::stringstream strs;
+    //  strs << std::hex << intvalue;
+
+    Serial.print(intvalue);
+    frameData.push_back(intvalue);
   
+   }  
+    // printTHATArray(frameData);  
 } 
+
 
 
 String getBitmapArray() {
@@ -215,13 +167,23 @@ String setBitmapArray(String value) {
  return arrayToString(frameData); 
 }
 
+String getBitmapHexArray() {
+  return arrayToString(frameData);
+}
+
+String setBitmapHexArray(String value) {
+ stringToHexArray(value);
+ return arrayToString(frameData); 
+}
+
 
 
 FieldList fields = {
   { "power", "Power", BooleanFieldType, 0, 1, NULL, getPower, NULL, setPower },
   { "brightness", "Brightness", NumberFieldType, 1, 255, NULL, getBrightness, NULL, setBrightness },
   { "text", "Text", TextFieldType, 0, 1, NULL, getText, NULL, setText },
-  { "array", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray}
+  { "array", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray},
+  { "arrayHEX", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapHexArray, NULL, setBitmapHexArray}
 };
 
 uint8_t fieldCount = ARRAY_SIZE(fields);
