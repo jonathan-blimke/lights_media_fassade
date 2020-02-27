@@ -14,6 +14,7 @@ function handleFiles(e) {
 function processimage(e) {
     var buffer = e.target.result;
     var bitmap = getBMP(buffer);
+    // var pixelabmessung = bitmap.infoheader.biWidth * bitmap.infoheader.biHeight;
     var unit8Array = decodePixelToHEX(bitmap);
     console.debug(unit8Array);
 }
@@ -52,7 +53,7 @@ function getBMP(buffer) {
 
 
 function rgbToHex(r, g, b) {
-    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return  ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
   //https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
@@ -65,15 +66,44 @@ function rgbToHex(r, g, b) {
   
   }
 
-  function decodePixelToHEX(bitmap){
-      
-      for (var i = 0; i < bitmap.infoheader.biSizeImage; i+=3) { 
-        let g = bitmap.pixels[i];  //b
-        let r= bitmap.pixels[i+1]; //r
-        let b = bitmap.pixels[i+2]; //g
-        let hexcolor = rgbToHex(r,b,g);
-        console.debug(hexcolor);
 
-        // from rgb888(24bit colordepth) to rgb565 ((16bit colordepth))
+
+  function decodePixelToHEX(bitmap){
+      let hexcolor = "";
+    //   hexcolor += "[";
+    //   let size = bitmap.infoheader.biWidth * bitmap.infoheader.biHeight;
+      for (var i = 0; i <= 140; i+=4) { 
+        let b = bitmap.pixels[i];  //b
+        let g = bitmap.pixels[i+1]; //r
+        let r = bitmap.pixels[i+2]; //g
+        // let rgb = rgbToHex(r,g,b);
+
+        hexcolor += rgbToHex(r,g,b);
+        
+        if(i < 140){
+            hexcolor += ",";
+        }
+        
+        
+        //build String with appanding hexcolor + ",":
+
+        // console.debug(RGB888ToRGB565(hexcolor));
        }
+    //    hexcolor += "]";
+       console.debug(hexcolor);
+       var data = "name=bitmap&value=" + hexcolor ; // + String 
+
+       var xhr = new XMLHttpRequest();
+       xhr.withCredentials = true;
+
+       xhr.addEventListener("readystatechange", function () {
+           if (this.readyState === this.DONE) {
+       console.log(this.responseText);
+       }
+           });
+
+       xhr.open("POST", "http://192.168.0.10/fieldValue");
+       xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+
+       xhr.send(data);
   }

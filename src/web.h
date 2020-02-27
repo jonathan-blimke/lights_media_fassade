@@ -73,16 +73,7 @@ void setupWeb()
     request->send(200, "text/json", json);
     digitalWrite(LED_BUILTIN, LOW);
   });
-
-//___
-  webServer.on("/json", HTTP_POST, [](AsyncWebServerRequest *request) {
-    
-    String text = "YES YOU ARE";
-
-    request->send(200, "json", text);
-   
-  });
-
+  
   webServer.on("/fieldValue", HTTP_GET, [](AsyncWebServerRequest *request) {
     digitalWrite(LED_BUILTIN, HIGH);
     String name = request->getParam("name")->value();
@@ -103,19 +94,6 @@ void setupWeb()
     request->send(200, "text/json", newValue);
     digitalWrite(LED_BUILTIN, LOW);
   });
-  webServer.on("/fieldValueHEX24", HTTP_POST, [](AsyncWebServerRequest *request) {
-    digitalWrite(LED_BUILTIN, HIGH);
-    String name = request->getParam("name", true)->value();
-
-    Field field = getField(name, fields, fieldCount);
-    String value;  
-    value = request->getParam("value", true)->value();
-    
-    String newValue = setFieldValue(name, value, fields, fieldCount);
-    request->send(200, "text/json", newValue);
-    digitalWrite(LED_BUILTIN, LOW);
-  });
-
  
   webServer.serveStatic("/", SPIFFS, "/").setDefaultFile("index.htm");
   webServer.begin();
@@ -150,7 +128,6 @@ void handleWeb()
   }
   else 
   {
-    
     // static value, could be done dynamicaly 
     EVERY_N_MILLIS(125)
     {

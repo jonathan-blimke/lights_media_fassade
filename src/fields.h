@@ -118,16 +118,19 @@ void stringToArray(String str) {
    std::string token;
    size_t size = 0;
    
-
+  // frameData_mutex.lock();
    while(std::getline(sstr, token, ',')) {
     //  Serial.print(token.c_str());
      std::stringstream ss(token.c_str());
      uint16_t intvalue;
      ss >> intvalue;
      Serial.print(intvalue, HEX);
+    //  frameData_mutex.lock();
      frameData.push_back(intvalue);
+    //  frameData_mutex.unlock();
   
-   }  
+   } 
+  //  frameData_mutex.unlock(); 
     // printTHATArray(frameData);  
 } 
 
@@ -148,8 +151,10 @@ void stringToHexArray(String str) {
     //  std::stringstream strs;
     //  strs << std::hex << intvalue;
 
-    Serial.print(intvalue);
+    // Serial.print(intvalue);
+    // frameData_mutex.try_lock();
     frameData.push_back(intvalue);
+    // frameData_mutex.unlock();
   
    }  
     // printTHATArray(frameData);  
@@ -168,22 +173,145 @@ String setBitmapArray(String value) {
 }
 
 String getBitmapHexArray() {
+  // frameData_mutex.try_lock();
   return arrayToString(frameData);
+  // frameData_mutex.unlock();
 }
 
 String setBitmapHexArray(String value) {
- stringToHexArray(value);
+  // breaktrigger = 1;
+  stringToHexArray(value);
+  //  frameData_mutex.try_lock();
+  // displayFrames(); 
  return arrayToString(frameData); 
+  //  frameData_mutex.unlock();
+}
+
+String getFps() {
+  return (String)fps;
+}
+
+String setFps(String value) {
+  fps = value.toInt();
+  return String(fps);
+}
+
+uint16_t RGB888toRGB565(const char *rgb32_str_)
+{
+ long rgb32=strtoul(rgb32_str_, 0, 16);
+ return (rgb32>>8&0xf800)|(rgb32>>5&0x07e0)|(rgb32>>3&0x001f);
+}
+
+inline byte hexToNibble(char hex) {
+ if (hex & _BV(6)){
+   hex += 9;
+ }
+ return hex;
+}
+
+//like the other method with similar name only a lot faster and smaller
+uint16_t RGB888toRGB565_2(const char *rgb32_str_)
+{
+ typedef union {
+   uint16_t integer;
+   struct{
+     uint8_t low;
+     uint8_t high;
+     };
+  } Byter;
+ 
+ byte red;
+ byte green;
+ Byter rgb16;
+                         
+ green = hexToNibble(rgb32_str_[2])<<4;
+ green |= hexToNibble(rgb32_str_[3])&0xC;
+ rgb16.low = hexToNibble(rgb32_str_[4])<<4;
+ rgb16.low |= hexToNibble(rgb32_str_[5])&0x8;
+ rgb16.high = hexToNibble(rgb32_str_[0])<<4;
+ rgb16.high |= hexToNibble(rgb32_str_[1])&0x8;
+ rgb16.low >>= 3;
+ rgb16.integer |= (green << 3);
+ 
+ return rgb16.integer;
 }
 
 
+String bitmapDataToString(std::vector<uint32_t> frame) {
+  String returnValue; //return String in JSON array syntax
+  returnValue +="[";
+  std::vector<uint32_t>::iterator itera;  
+  int ii = 0;  //counter
+
+  for(itera = frame.begin(); itera != frame.end(); itera++,ii++ ) {
+    // Serial.println("   itera: ");
+    // Serial.print(*itera);
+    returnValue += *itera;
+    if( ii < frame.size()-1) {
+      returnValue += ",";
+    }
+  }
+    returnValue +="]";
+    return returnValue;
+}
+
+String getBitmapPixelData() { 
+  return bitmapDataToString(bitmapData);
+}
+
+void convertVectorFromUint32toUint16(std::vector<uint32_t> vector) {
+  std::vector<uint32_t>::iterator iterat;  
+  bitmapData16.clear(); //set to save mode
+  for(iterat = vector.begin(); iterat != vector.end(); iterat++ ) {
+    Serial.print(*iterat);
+    Serial.print(", ");
+    bitmapData16.push_back(*iterat);
+    // Serial.print(*iterat);
+    // Serial.print(,);
+  }
+}
+
+String setBitmapPixelData(String value) {
+   bitmapData.clear(); 
+   std::stringstream sstr(value.c_str());
+   std::string token;
+  //  size_t size = 0;
+   
+   while(std::getline(sstr, token, ',')) {
+     std::stringstream ss(token.c_str());
+    //  Serial.print("   token: ");
+    //  Serial.println(token.c_str());
+    //  uint32_t intvalue;
+    //  uint16_t rgb565 = RGB888toRGB565(token.c_str());
+     uint16_t rgb565 = RGB888toRGB565_2(token.c_str());
+    //  Serial.print("   rgb565: ");
+    //  Serial.println(rgb565, HEX);
+    //  ss >> std::hex >> rgb565;
+     bitmapData.push_back(rgb565);
+   }  
+   convertVectorFromUint32toUint16(bitmapData);
+  return bitmapDataToString(bitmapData);
+}
+
+String getBitmapButton(){
+   return String(bitmapButton);
+}
+
+String setBitmapButton(String value) {
+  bitmapButton = value.toInt();
+  bitmapButton = bitmapButton == 0 ? 0 : 1;
+  return String(bitmapButton);
+}
 
 FieldList fields = {
   { "power", "Power", BooleanFieldType, 0, 1, NULL, getPower, NULL, setPower },
   { "brightness", "Brightness", NumberFieldType, 1, 255, NULL, getBrightness, NULL, setBrightness },
   { "text", "Text", TextFieldType, 0, 1, NULL, getText, NULL, setText },
-  { "array", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray},
-  { "arrayHEX", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapHexArray, NULL, setBitmapHexArray}
+  // { "array", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray},
+  { "arrayHEX", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapHexArray, NULL, setBitmapHexArray},
+  { "fps", "Frames per Second", NumberFieldType, 1, 60, NULL, getFps, NULL, setFps },
+  { "bitmap", "Bitmap Data", ArrayFieldType, 0, 1, NULL, getBitmapPixelData, NULL, setBitmapPixelData },
+  { "bitmap Button", ".bmp Datei", BooleanFieldType, 0, 1, NULL, getBitmapButton, NULL, setBitmapButton} 
 };
 
 uint8_t fieldCount = ARRAY_SIZE(fields);

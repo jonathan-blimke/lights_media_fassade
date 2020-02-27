@@ -30,10 +30,11 @@ $(document).ready(function () {
       } else if (field.type == "Boolean") {
         addBooleanField(field);
       }
-      else if(field.type == "Text") {    // [x] adjust field.h with text and init and fields.h
+      else if(field.type == "Text") {    
       
-        addTextField(field);              // [x] implement this method 
+        addTextField(field);              
       }
+   
     });
     $("#status").html("Ready");
   })
