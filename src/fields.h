@@ -263,8 +263,8 @@ void convertVectorFromUint32toUint16(std::vector<uint32_t> vector) {
   std::vector<uint32_t>::iterator iterat;  
   bitmapData16.clear(); //set to save mode
   for(iterat = vector.begin(); iterat != vector.end(); iterat++ ) {
-    Serial.print(*iterat);
-    Serial.print(", ");
+    // Serial.print(*iterat);
+    // Serial.print(", ");
     bitmapData16.push_back(*iterat);
     // Serial.print(*iterat);
     // Serial.print(,);
@@ -307,11 +307,11 @@ FieldList fields = {
   { "power", "Power", BooleanFieldType, 0, 1, NULL, getPower, NULL, setPower },
   { "brightness", "Brightness", NumberFieldType, 1, 255, NULL, getBrightness, NULL, setBrightness },
   { "text", "Text", TextFieldType, 0, 1, NULL, getText, NULL, setText },
-  // { "array", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray},
-  { "arrayHEX", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapHexArray, NULL, setBitmapHexArray},
+  { "rgb565_DEC", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray},
+  // { "arrayHEX", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapHexArray, NULL, setBitmapHexArray},
   { "fps", "Frames per Second", NumberFieldType, 1, 60, NULL, getFps, NULL, setFps },
-  { "bitmap", "Bitmap Data", ArrayFieldType, 0, 1, NULL, getBitmapPixelData, NULL, setBitmapPixelData },
-  { "bitmap Button", ".bmp Datei", BooleanFieldType, 0, 1, NULL, getBitmapButton, NULL, setBitmapButton} 
+  { "rgb888_HEX", "Bitmap Data", ArrayFieldType, 0, 1, NULL, getBitmapPixelData, NULL, setBitmapPixelData }
+  // { "bitmap Button", ".bmp Datei", BooleanFieldType, 0, 1, NULL, getBitmapButton, NULL, setBitmapButton} 
 };
 
 uint8_t fieldCount = ARRAY_SIZE(fields);

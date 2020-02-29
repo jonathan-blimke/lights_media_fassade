@@ -84,6 +84,14 @@ uint16_t bitmap36[36] = { //some warm orange
   0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3, 0xBCE3
 };
 
+uint16_t bitmapBLACK[36] = { //some warm orange
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,  
+  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 
+};
 
 
 
@@ -194,18 +202,23 @@ CRGB matrixleds[NUMMATRIX];
    NEO_MATRIX_TOP, NEO_MATRIX_BOTTOM, NEO_MATRIX_LEFT, NEO_MATRIX_RIGHT:
     Position of the FIRST LED in the FIRST MATRIX; pick two, e.g.
     NEO_MATRIX_TOP + NEO_MATRIX_LEFT for the top-left corner.
+
   NEO_MATRIX_ROWS, NEO_MATRIX_COLUMNS: LEDs WITHIN EACH MATRIX are
     arranged in horizontal rows or in vertical columns, respectively;
     pick one or the other.
+
   NEO_MATRIX_PROGRESSIVE, NEO_MATRIX_ZIGZAG: all rows/columns WITHIN
     EACH MATRIX proceed in the same order, or alternate lines reverse
     direction; pick one.
+
   NEO_TILE_TOP, NEO_TILE_BOTTOM, NEO_TILE_LEFT, NEO_TILE_RIGHT:
     Position of the FIRST MATRIX (tile) in the OVERALL DISPLAY; pick
     two, e.g. NEO_TILE_TOP + NEO_TILE_LEFT for the top-left corner.
+
   NEO_TILE_ROWS, NEO_TILE_COLUMNS: the matrices in the OVERALL DISPLAY
     are arranged in horizontal rows or in vertical columns, respectively;
     pick one or the other.
+
   NEO_TILE_PROGRESSIVE, NEO_TILE_ZIGZAG: the ROWS/COLUMS OF MATRICES
     (tiles) in the OVERALL DISPLAY proceed in the same order for every
     line, or alternate lines reverse direction; pick one.  When using
@@ -749,9 +762,9 @@ void testColours() {
 }
 
 void testColoursWithShift(){
-   Serial.print(" :::with color shift ");
+  //  Serial.print(" :::with color shift ");
   matrix_clear();
-  display_rgbBitmap(bitmap36);
+  display_rgbBitmap(bitmapBLACK);
   delay(2000);
 
 }
@@ -872,34 +885,26 @@ void loop() {
 
   if (power == 0) {
      testColoursWithShift();
+    //  matrix->clear();
+
    
   }
   else {
-    // displayFrames();
-
+    displayFrames();
     //  matrix->clear();
     // matrix->drawRGBBitmap(0, 0, bitmap34, mw, mh);
-
     // std::vector<uint16_t>::iterator iterato;
     // for(iterato = bitmapData16.begin(); iterato != bitmapData16.end(); iterato++ ){
     //   Serial.print(*iterato);
     //   Serial.print(",");
     // }
-
     // displayInput(bitmapData16);
-
- 
-
-    //-----------------------displaying .bmp files--------while1frame is stored in bitmapData16
-    matrix->clear(); 
-    matrix->drawRGBBitmap(0, 0, &bitmapData16[0], mw, mh);
-    matrix->show();
-    FastLED.delay(1000 / fps);
-   
   }
   // if(bitmapButton == 1) {
   //   matrix->clear(); 
   //   matrix->drawRGBBitmap(0, 0, &bitmapData16[0], mw, mh);
+  //   matrix->show();
+  //   FastLED.delay(1000 / fps);
   // }
-  Serial.print(" loopiteration done");
+  // Serial.print(" loopiteration done");
 }

@@ -134,7 +134,7 @@ void handleWeb()
       // ledState = ;
       digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
       connectTry = connectTry + 1;
-      if (connectTry > 30)
+      if (connectTry > 20)
       {
         Serial.println("");
         Serial.println("could not connect to wifi, restarting...");

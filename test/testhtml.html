@@ -1,4 +1,16 @@
+<!DOCTYPE html>
+<html>
+<body>
+<form id="upload" method="post" action="upload.php" enctype="multipart/form-data">
+            <input type="file" id="input" name="files[]" multiple />
+            <ul id="fileList">
+              <!-- The file list will be shown here -->
+            </ul>
+          </form>
+
+<script>
 var inputElement = document.getElementById("input");
+var size = 0;
 inputElement.addEventListener("change",
     handleFiles, false);
 
@@ -48,6 +60,8 @@ function getBMP(buffer) {
     bitmap.stride = Math.floor((bitmap.infoheader.biBitCount *bitmap.infoheader.biWidth + 31) / 32) * 4;
     bitmap.pixels = new Uint8Array(buffer, start);
     console.debug(bitmap.pixels);
+    size  = Math.round((bitmap.pixels.length - 1)/4);
+    console.debug("size:" + size);
     return bitmap;
 }
 
@@ -70,9 +84,8 @@ function rgbToHex(r, g, b) {
 
   function decodePixelToHEX(bitmap){
       let hexcolor = "";
-    //   hexcolor += "[";
-    //   let size = bitmap.infoheader.biWidth * bitmap.infoheader.biHeight;
-      for (var i = 0; i <= 8204; i+=4) { //140 for 6*6
+      hexcolor += "[";
+      for (var i = 0; i <= size; i+=4) { //140 for x*y*4-4
         let b = bitmap.pixels[i];  //b
         let g = bitmap.pixels[i+1]; //r
         let r = bitmap.pixels[i+2]; //g
@@ -80,30 +93,14 @@ function rgbToHex(r, g, b) {
 
         hexcolor += rgbToHex(r,g,b);
         
-        if(i < 8204){
+        if(i < size){
             hexcolor += ",";
         }
-        
-        
-        //build String with appanding hexcolor + ",":
-
-        // console.debug(RGB888ToRGB565(hexcolor));
        }
-    //    hexcolor += "]";
-       console.debug(hexcolor);
-       var data = "name=rgb888_HEX&value=" + hexcolor ; // + String 
-
-       var xhr = new XMLHttpRequest();
-       xhr.withCredentials = true;
-
-       xhr.addEventListener("readystatechange", function () {
-           if (this.readyState === this.DONE) {
-       console.log(this.responseText);
-       }
-           });
-
-       xhr.open("POST", "http://192.168.0.2/fieldValue");
-       xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-
-       xhr.send(data);
+       hexcolor += "]";
+      console.debug(hexcolor);
   }
+</script> 
+
+</body>
+</html>
