@@ -45,13 +45,12 @@ public:
   FieldGetter getValue;
   FieldGetter getOptions;
   FieldSetter setValue;
-  FieldSetter setArray;
+  FieldSetter setArray; //unwesentlich kann rausgenommen werden
 };
 
 typedef Field FieldList[];
 
-Field getField(String name, FieldList fields, uint8_t count)
-{
+Field getField(String name, FieldList fields, uint8_t count) {
   for (uint8_t i = 0; i < count; i++)
   {
     Field field = fields[i];
@@ -63,8 +62,7 @@ Field getField(String name, FieldList fields, uint8_t count)
   return Field();
 }
 
-String getFieldValue(String name, FieldList fields, uint8_t count)
-{
+String getFieldValue(String name, FieldList fields, uint8_t count) {
   Field field = getField(name, fields, count);
   if (field.getValue)
   {
@@ -73,8 +71,7 @@ String getFieldValue(String name, FieldList fields, uint8_t count)
   return String();
 }
 
-CRGB parseColor(String value)
-{
+CRGB parseColor(String value) {
   uint8_t ri = value.indexOf(",");
   uint8_t gi = value.indexOf(",", ri + 1);
 
@@ -89,8 +86,7 @@ CRGB parseColor(String value)
   return CRGB(r, g, b);
 }
 
-void writeFieldsToEEPROM(FieldList fields, uint8_t count)
-{
+void writeFieldsToEEPROM(FieldList fields, uint8_t count) {
   uint8_t index = 0;
 
   EEPROM.write(index, 0);
@@ -120,8 +116,7 @@ void writeFieldsToEEPROM(FieldList fields, uint8_t count)
   EEPROM.commit();
 }
 
-String setFieldValue(String name, String value, FieldList fields, uint8_t count)
-{
+String setFieldValue(String name, String value, FieldList fields, uint8_t count) {
   Field field = getField(name, fields, count);
   if (!field.setValue) {
     return "";
@@ -136,8 +131,7 @@ String setFieldValue(String name, String value, FieldList fields, uint8_t count)
   return result;
 }
 
-void loadFieldsFromEEPROM(FieldList fields, uint8_t count)
-{
+void loadFieldsFromEEPROM(FieldList fields, uint8_t count) {
   uint8_t byteCount = 1;
 
   for (uint8_t i = 0; i < count; i++)
@@ -188,8 +182,7 @@ void loadFieldsFromEEPROM(FieldList fields, uint8_t count)
 }
 
 // returns field list as json
-String getFieldsJson(FieldList fields, uint8_t count)
-{
+String getFieldsJson(FieldList fields, uint8_t count) {
   String json = "[";
 
   for (uint8_t i = 0; i < count; i++)

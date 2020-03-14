@@ -21,15 +21,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-// void printTHATArray(std::vector<uint16_t> input) {
-//   std::vector<uint16_t>::iterator iter;  
-//   int i = 0;  //data counter
 
-//   for(iter = input.begin(); iter != input.end(); ++iter,i++ ) {
-//     Serial.print(*iter);
-//     Serial.print(", ");
-//   }
-// }
 
 String getPower() {
   return String(power);
@@ -39,6 +31,26 @@ String setPower(String value) {
   power = value.toInt();
   power = power == 0 ? 0 : 1;
   return String(power);
+}
+
+String getDisplaybitmap() {
+  return String(displayframes);
+}
+
+String setDisplaybitmap(String value) {
+  displayframes = value.toInt();
+  displayframes = displayframes == 0 ? 0 : 1;
+  return String(displayframes);
+}
+
+String getDisplaytext() {
+  return String(power);
+}
+
+String setDisplaytext(String value) {
+  displayScrollText = value.toInt();
+  displayScrollText = displayScrollText == 0 ? 0 : 1;
+  return String(displayScrollText);
 }
 
 String getBrightness() {
@@ -196,8 +208,7 @@ String setFps(String value) {
   return String(fps);
 }
 
-uint16_t RGB888toRGB565(const char *rgb32_str_)
-{
+uint16_t RGB888toRGB565(const char *rgb32_str_) {
  long rgb32=strtoul(rgb32_str_, 0, 16);
  return (rgb32>>8&0xf800)|(rgb32>>5&0x07e0)|(rgb32>>3&0x001f);
 }
@@ -306,12 +317,12 @@ String setBitmapButton(String value) {
 FieldList fields = {
   { "power", "Power", BooleanFieldType, 0, 1, NULL, getPower, NULL, setPower },
   { "brightness", "Brightness", NumberFieldType, 1, 255, NULL, getBrightness, NULL, setBrightness },
+  { "displaytext", "Display Text", BooleanFieldType, 0, 1, NULL, getDisplaytext, NULL, setDisplaytext },
   { "text", "Text", TextFieldType, 0, 1, NULL, getText, NULL, setText },
   { "rgb565_DEC", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray},
-  // { "arrayHEX", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapHexArray, NULL, setBitmapHexArray},
+  { "displaybitmap", "Display Bitmap", BooleanFieldType, 0, 1, NULL, getDisplaybitmap, NULL, setDisplaybitmap },
   { "fps", "Frames per Second", NumberFieldType, 1, 60, NULL, getFps, NULL, setFps },
   { "rgb888_HEX", "Bitmap Data", ArrayFieldType, 0, 1, NULL, getBitmapPixelData, NULL, setBitmapPixelData }
-  // { "bitmap Button", ".bmp Datei", BooleanFieldType, 0, 1, NULL, getBitmapButton, NULL, setBitmapButton} 
 };
 
 uint8_t fieldCount = ARRAY_SIZE(fields);

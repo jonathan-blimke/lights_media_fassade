@@ -103,8 +103,6 @@ void setupWeb()
   Serial.println("WebSockets server started");
 }
 
-
-
 void handleWeb()
 {
   static bool webServerStarted = false;

@@ -6,7 +6,7 @@
             <ul id="fileList">
               <!-- The file list will be shown here -->
             </ul>
-          </form>
+ </form>
 
 <script>
 var inputElement = document.getElementById("input");
@@ -80,12 +80,10 @@ function rgbToHex(r, g, b) {
   
   }
 
-
-
-  function decodePixelToHEX(bitmap){
+  function decodePixelToHEX(bitmap) {
       let hexcolor = "";
       hexcolor += "[";
-      for (var i = 0; i <= size; i+=4) { //140 for x*y*4-4
+      for (var i = 0; i <= size*4-4; i+=4) { //140 for x*y*4-4
         let b = bitmap.pixels[i];  //b
         let g = bitmap.pixels[i+1]; //r
         let r = bitmap.pixels[i+2]; //g
@@ -93,7 +91,7 @@ function rgbToHex(r, g, b) {
 
         hexcolor += rgbToHex(r,g,b);
         
-        if(i < size){
+        if(i < size*4-4) {
             hexcolor += ",";
         }
        }
