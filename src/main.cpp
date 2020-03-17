@@ -1,16 +1,4 @@
 /*
-
-  piotrkochan: https://github.com/piotrkochan/esp32-fastled-webserver-platformio#this-is-a-platformio-fork-of-esp32-fastled-web-server
-
-   ESP32 FastLED WebServer: https://github.com/jasoncoon/esp32-fastled-webserver
-   Copyright (C) 2017 Jason Coon
-
-   Built upon the amazing FastLED work of Daniel Garcia and Mark Kriegsman:
-   https://github.com/FastLED/FastLED
-
-   ESP32 support provided by the hard work of Sam Guyer:
-   https://github.com/samguyer/FastLED
-
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -460,8 +448,6 @@ void loop() {
     if(displayScrollText==1) {
       display_scrollText(serverstring);
     }
-
-
   }
 
 }

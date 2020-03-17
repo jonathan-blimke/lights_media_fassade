@@ -27,11 +27,9 @@ typedef String (*FieldGetter)();
 
 const String NumberFieldType = "Number";
 const String BooleanFieldType = "Boolean";
-const String SelectFieldType = "Select";
-const String ColorFieldType = "Color";
-const String SectionFieldType = "Section";
 const String TextFieldType ="Text";
 const String ArrayFieldType  ="Array";
+const String ColorFieldType ="Color";
 
 typedef struct Field
 {
@@ -45,7 +43,6 @@ public:
   FieldGetter getValue;
   FieldGetter getOptions;
   FieldSetter setValue;
-  FieldSetter setArray; //unwesentlich kann rausgenommen werden
 };
 
 typedef Field FieldList[];
@@ -71,20 +68,6 @@ String getFieldValue(String name, FieldList fields, uint8_t count) {
   return String();
 }
 
-CRGB parseColor(String value) {
-  uint8_t ri = value.indexOf(",");
-  uint8_t gi = value.indexOf(",", ri + 1);
-
-  String rs = value.substring(0, ri);
-  String gs = value.substring(ri + 1, gi);
-  String bs = value.substring(gi + 1);
-
-  uint8_t r = rs.toInt();
-  uint8_t g = gs.toInt();
-  uint8_t b = bs.toInt();
-
-  return CRGB(r, g, b);
-}
 
 void writeFieldsToEEPROM(FieldList fields, uint8_t count) {
   uint8_t index = 0;
@@ -98,21 +81,9 @@ void writeFieldsToEEPROM(FieldList fields, uint8_t count) {
       continue;
 
     String value = field.getValue();
-
-    if (field.type == ColorFieldType)
-    {
-      CRGB color = parseColor(value);
-      EEPROM.write(index++, color.r);
-      EEPROM.write(index++, color.g);
-      EEPROM.write(index++, color.b);
-    }
-    else
-    {
-      byte v = value.toInt();
-      EEPROM.write(index++, v);
-    }
+    byte v = value.toInt();
+    EEPROM.write(index++, v);
   }
-
   EEPROM.commit();
 }
 
