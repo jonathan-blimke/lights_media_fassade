@@ -119,10 +119,7 @@ void clearFrameData() {
     frameData.erase(iter); //last change
   }
 }
-//1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60
 
-//parse's string into std::vector<uint16:t> frameData
-//std::vector<uint16_t>
 void stringToArray(String str) {   
   //  clearFrameData();
    frameData.clear(); 
@@ -172,8 +169,6 @@ void stringToHexArray(String str) {
     // printTHATArray(frameData);  
 } 
 
-
-
 String getBitmapArray() {
   return arrayToString(frameData);
   
@@ -221,8 +216,7 @@ inline byte hexToNibble(char hex) {
 }
 
 //like the other method with similar name only a lot faster and smaller
-uint16_t RGB888toRGB565_2(const char *rgb32_str_)
-{
+uint16_t RGB888toRGB565_2(const char *rgb32_str_) {
  typedef union {
    uint16_t integer;
    struct{
@@ -315,14 +309,14 @@ String setBitmapButton(String value) {
 }
 
 FieldList fields = {
-  { "power", "Power", BooleanFieldType, 0, 1, NULL, getPower, NULL, setPower },
-  { "brightness", "Brightness", NumberFieldType, 1, 255, NULL, getBrightness, NULL, setBrightness },
-  { "displaytext", "Display Text", BooleanFieldType, 0, 1, NULL, getDisplaytext, NULL, setDisplaytext },
-  { "text", "Text", TextFieldType, 0, 1, NULL, getText, NULL, setText },
-  { "rgb565_DEC", "Matrixdata", ArrayFieldType, 0, 1, NULL, getBitmapArray, NULL, setBitmapArray},
-  { "displaybitmap", "Display Bitmap", BooleanFieldType, 0, 1, NULL, getDisplaybitmap, NULL, setDisplaybitmap },
-  { "fps", "Frames per Second", NumberFieldType, 1, 60, NULL, getFps, NULL, setFps },
-  { "rgb888_HEX", "Bitmap Data", ArrayFieldType, 0, 1, NULL, getBitmapPixelData, NULL, setBitmapPixelData }
+  { "power", "Power", BooleanFieldType, 0, 1, getPower, NULL, setPower },
+  { "brightness", "Brightness", NumberFieldType, 1, 255, getBrightness, NULL, setBrightness },
+  { "displaytext", "Display Text", BooleanFieldType, 0, 1, getDisplaytext, NULL, setDisplaytext },
+  { "text", "Text", TextFieldType, 0, 1, getText, NULL, setText },
+  { "rgb565_DEC", "Matrixdata", ArrayFieldType, 0, 1, getBitmapArray, NULL, setBitmapArray},
+  { "displaybitmap", "Display Bitmap", BooleanFieldType, 0, 1, getDisplaybitmap, NULL, setDisplaybitmap },
+  { "fps", "Frames per Second", NumberFieldType, 1, 60, getFps, NULL, setFps },
+  { "rgb888A_HEX", "Bitmap Data", ArrayFieldType, 0, 1, getBitmapPixelData, NULL, setBitmapPixelData }
 };
 
 uint8_t fieldCount = ARRAY_SIZE(fields);

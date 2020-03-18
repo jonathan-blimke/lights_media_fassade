@@ -39,7 +39,6 @@ public:
   String type;
   uint8_t min;
   uint8_t max;
-  uint16_t *bitmap;
   FieldGetter getValue;
   FieldGetter getOptions;
   FieldSetter setValue;
@@ -67,7 +66,6 @@ String getFieldValue(String name, FieldList fields, uint8_t count) {
   }
   return String();
 }
-
 
 void writeFieldsToEEPROM(FieldList fields, uint8_t count) {
   uint8_t index = 0;
