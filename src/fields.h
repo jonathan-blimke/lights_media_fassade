@@ -86,7 +86,7 @@ String decToHex(int dec_value) {
 
 //converts an array of integers into an JSON conform string
 String arrayToString(std::vector<uint16_t> frames) {
-  String returnvalue; //return String in JSON array syntax
+  String returnvalue; 
   returnvalue +="[";
   std::vector<uint16_t>::iterator iter;  
   int i = 0;  //counter
@@ -96,10 +96,6 @@ String arrayToString(std::vector<uint16_t> frames) {
     if( i < frames.size()-1) {
       returnvalue += ",";
     }
-    // if(iter != frames.end()) { 
-    //  returnvalue += ",";
-    // }
-
   }
     returnvalue +="]";
     return returnvalue;
@@ -280,18 +276,10 @@ String setBitmapPixelData(String value) {
    bitmapData.clear(); 
    std::stringstream sstr(value.c_str());
    std::string token;
-  //  size_t size = 0;
-   
+
    while(std::getline(sstr, token, ',')) {
      std::stringstream ss(token.c_str());
-    //  Serial.print("   token: ");
-    //  Serial.println(token.c_str());
-    //  uint32_t intvalue;
-    //  uint16_t rgb565 = RGB888toRGB565(token.c_str());
      uint16_t rgb565 = RGB888toRGB565_2(token.c_str());
-    //  Serial.print("   rgb565: ");
-    //  Serial.println(rgb565, HEX);
-    //  ss >> std::hex >> rgb565;
      bitmapData.push_back(rgb565);
    }  
    convertVectorFromUint32toUint16(bitmapData);

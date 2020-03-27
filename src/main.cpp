@@ -288,9 +288,9 @@ void display_scrollText(String text) {
     matrix->setTextSize(size);
     matrix->setRotation(0);  //2 +90 degrees;3 -90 degres; 0 default;1 -180 degrees
     int8_t length = serverstring.length();
-    Serial.println(length);
+    // Serial.println(length);
     int16_t looplength = length * mw;
-    Serial.println(looplength);
+    // Serial.println(looplength);
     for (int8_t x=0; x>=-looplength; x--) {
         //used to be: x=7, x>=-42, x--
 	    yield();
@@ -368,7 +368,7 @@ void displayFrames() {
       }
     }
 }
-
+//test method to get independet from global frameData vector, but does basicly the same as displayFrames
 void displayInput(std::vector<uint16_t> vector) {
 
   singleFrame.clear();  

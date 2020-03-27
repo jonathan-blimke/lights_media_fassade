@@ -76,7 +76,7 @@ void setupWeb()
   
   webServer.on("/fieldValue", HTTP_GET, [](AsyncWebServerRequest *request) {
     digitalWrite(LED_BUILTIN, HIGH);
-    String name = request->getParam("name")->value();
+    String name = request->getParam("name", true)->value();
     String value = getFieldValue(name, fields, fieldCount);
     request->send(200, "text/json", value);
     digitalWrite(LED_BUILTIN, LOW);
