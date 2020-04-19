@@ -5,17 +5,17 @@ LED Matrix Interface
 ## General
 This Project was created with VS Code and PlatformIO IDE. You can control an LED Matrix via a Network. Build with FastLED and FastLED_Neomatrix. To ask resources you can send GET requests to the API endpoint. Sending Data, such as content that you want to display on the LED Matrix, can be send via POST Methods.
 
-### GET Method requesting Ressource
-GET /all HTTP/1.1 
-Host: 192.168.0.2 
-Accept: application/json
+### GET Method example
+GET /all HTTP/1.1   <br />
+Host: 192.168.0.2  <br />
+Accept: application/json <br />
 
 ### POST Method example
-POST /fieldValue HTTP/1.1
-Host: 192.168.0.2
-User-Agent: insomnia/7.1.1
-Content-Type: application/x-www-form-urlencoded Accept: */*
-Content-Length: 274
+POST /fieldValue HTTP/1.1 <br />
+Host: 192.168.0.2 <br />
+User-Agent: insomnia/7.1.1 <br />
+Content-Type: application/x-www-form-urlencoded Accept: */* <br />
+Content-Length: 274 <br />
 
 name=rgb888A_HEX&value=b5541f,b5541f,000000,000000,fb00e6,fb00e6, b5541f,000000,000000,000000,000000,fb00e6,000000,000000,000000,000000, 000000,000000,000000,000000,000000,000000,000000,000000,53c64e,000000, 000000,000000,000000,290a59,53c64e,53c64e,000000,000000,290a59,290a59
 
