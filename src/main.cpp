@@ -437,6 +437,8 @@ void setup() {
 void loop() {
 
   handleWeb();
+  // Serial.print("Free Heapsize in bytes: ");
+  // Serial.println(xPortGetFreeHeapSize());
 
   if (power == 0) {
      allLedsBlack();

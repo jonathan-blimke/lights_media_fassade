@@ -1,43 +1,34 @@
 # Welcome
+LED Matrix Interface
 
-
-This is a project currently work in progress is a ESP32 Webserver with a WS2811 LED Matrix. 
-
-I am using several projects and made adjustments for my own scenario:
-(https://github.com/marcmerlin/AnimatedGIFs)
-(https://github.com/piotrkochan/esp32-fastled-webserver-platformio#this-is-a-platformio-fork-of-esp32-fastled-web-server)
-
-
-
-
-## Below is _almost_ original README with some of my changes.
-
-Control addressable LEDs with an ESP32 via a web browser over Wi-Fi.
 
 ## General
+This Project was created with VS Code and PlatformIO IDE. You can control an LED Matrix via a Network. Build with FastLED and FastLED_Neomatrix. To ask resources you can send GET requests to the API endpoint. Sending Data, such as content that you want to display on the LED Matrix, can be send via POST Methods.
 
-I'm using VS Code and PlatformIO as Toolchain. The Project ist set up with  Espressif ESP32 Dev Module
-currently displaying Bitmaps like bitmapsIterationTest(); in main.cpp works fine
-However Gifs are displayed wrong, colors are not correctly displayed and it seems like its displaying 2 frames at a time.
-Gifs were made with photoshop, then optimized with (https://ezgif.com/optimize).
+### GET Method requesting Ressource
+GET /all HTTP/1.1 
+Host: 192.168.0.2 
+Accept: application/json
 
-### Upload data/ to SPIFFS:
+### POST Method example
+POST /fieldValue HTTP/1.1
+Host: 192.168.0.2
+User-Agent: insomnia/7.1.1
+Content-Type: application/x-www-form-urlencoded Accept: */*
+Content-Length: 274
 
-```
-Gifs are located in Data which are uploaded to SPIFFS
+name=rgb888A_HEX&value=b5541f,b5541f,000000,000000,fb00e6,fb00e6, b5541f,000000,000000,000000,000000,fb00e6,000000,000000,000000,000000, 000000,000000,000000,000000,000000,000000,000000,000000,53c64e,000000, 000000,000000,000000,290a59,53c64e,53c64e,000000,000000,290a59,290a59
 
-```
+### adressable resources:
+* [x] power
+* [x] brightness
+* [x] text
+* [x] rgb565_DEC
+* [x] displaybitmap
+* [x] fps
+* [x] rgb888A_HEX
 
 
-
-## Features
-
-
-### List:
-* [x] Displaying hex arraysbitmaps 
-* [x] storing them as json  
-* [ ] parse them back into displayable format
-* [ ] Displaying Gifs on NeoMatrix Backend
-* [ ] Upload gifs via httpPOSt save them into SPIFFS
-
+### Bitmapconverter
+The file "bitmapconverter.html" is a tool to create graphic content for your led matrix. It parses an .bmp into text which is seeable in the POST example. 
 

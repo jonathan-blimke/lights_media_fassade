@@ -129,7 +129,9 @@ void stringToArray(String str) {
      std::stringstream ss(token.c_str());
      uint16_t intvalue;
      ss >> intvalue;
-     Serial.print(intvalue, HEX);
+    //  Serial.print(intvalue, HEX);
+    // Serial.print("Free Heapsize in bytes: ");
+    // Serial.println(xPortGetFreeHeapSize());
     //  frameData_mutex.lock();
      frameData.push_back(intvalue);
     //  frameData_mutex.unlock();
@@ -137,6 +139,7 @@ void stringToArray(String str) {
    } 
   //  frameData_mutex.unlock(); 
     // printTHATArray(frameData);  
+      
 } 
 
 void stringToHexArray(String str) {   

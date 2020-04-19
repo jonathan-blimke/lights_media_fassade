@@ -70,7 +70,7 @@ void setupWeb()
   webServer.on("/all", HTTP_GET, [](AsyncWebServerRequest *request) {
     digitalWrite(LED_BUILTIN, HIGH);
     String json = getFieldsJson(fields, fieldCount);
-    request->send(200, "text/json", json);
+    request->send(200, "application/json", json);
     digitalWrite(LED_BUILTIN, LOW);
   });
   
@@ -78,7 +78,7 @@ void setupWeb()
     digitalWrite(LED_BUILTIN, HIGH);
     String name = request->getParam("name", true)->value();
     String value = getFieldValue(name, fields, fieldCount);
-    request->send(200, "text/json", value);
+    request->send(200, "application/json", value);
     digitalWrite(LED_BUILTIN, LOW);
   });
 
@@ -91,7 +91,7 @@ void setupWeb()
     value = request->getParam("value", true)->value();
     
     String newValue = setFieldValue(name, value, fields, fieldCount);
-    request->send(200, "text/json", newValue);
+    request->send(200, "application/json", newValue);
     digitalWrite(LED_BUILTIN, LOW);
   });
  
