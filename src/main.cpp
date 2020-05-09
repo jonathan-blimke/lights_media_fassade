@@ -180,7 +180,7 @@ CRGB matrixleds[NUMMATRIX];
     */
 FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(matrixleds, MATRIX_TILE_WIDTH, MATRIX_TILE_HEIGHT,
 MATRIX_TILE_H, MATRIX_TILE_V,
-  NEO_MATRIX_TOP     + NEO_MATRIX_LEFT +
+  NEO_MATRIX_BOTTOM     + NEO_MATRIX_LEFT +
     NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG +
     NEO_TILE_TOP + NEO_TILE_LEFT +  NEO_TILE_PROGRESSIVE);
 
@@ -444,12 +444,12 @@ void loop() {
      allLedsBlack();
   }
   else {
-    if(displayframes==1) {
+    // if(displayframes==1) {
       displayFrames();
-    }
-    if(displayScrollText==1) {
-      display_scrollText(serverstring);
-    }
+    // }
+    // if(displayScrollText==1) {
+      // display_scrollText(serverstring);
+    // }
   }
 
 }

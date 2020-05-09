@@ -265,11 +265,12 @@ String getBitmapPixelData() {
 
 void convertVectorFromUint32toUint16(std::vector<uint32_t> vector) {
   std::vector<uint32_t>::iterator iterat;  
-  bitmapData16.clear(); //set to save mode
+  // bitmapData16.clear(); //set to save mode
+  frameData.clear();
   for(iterat = vector.begin(); iterat != vector.end(); iterat++ ) {
     // Serial.print(*iterat);
     // Serial.print(", ");
-    bitmapData16.push_back(*iterat);
+    frameData.push_back(*iterat); //used to be pushed into bitmapData16
     // Serial.print(*iterat);
     // Serial.print(,);
   }
